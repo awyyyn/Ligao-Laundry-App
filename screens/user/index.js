@@ -1,0 +1,9 @@
+export { default as Profile } from './Profile';
+export { default as Message } from './Message';
+export { default as Notification } from './Notification';
+export { default as Record } from './Record';
+export { default as Setting } from './Setting';
+export { default as Status } from './Status'; 
+export { default as BookingScreen } from './BookingScreen';
+export { default as HomeScreen } from './HomeScreen'; 
+export { default as Logout } from './Logout';  
