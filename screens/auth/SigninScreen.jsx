@@ -50,8 +50,7 @@ export default function SigninScreen() {
         console.log('loading...')
         /* CHECK IF PHONE NUMBER IS REGISTERED */
         const { data: phoneData } = await supabase.from('customers').select('phone').eq('phone', `63${values.phone.slice(1)}`)
-        console.log(phoneData)
-        console.log(phoneData.length ? '1' : '0')
+        console.log(phoneData) 
         
         if(phoneData?.length == 0){
             dispatch(setLoadingFalse())
@@ -69,7 +68,7 @@ export default function SigninScreen() {
         /* IF THERE IS NO INTERNET OR DATA  */
         if(error?.status == 0){
             dispatch(setLoadingFalse())
-            return alert("NETWORK ERROR")
+            return alert("Network Error!")
         }
 
         /* IF ERROR IS TRUE, SET ERROR TO DISPLAY DIALOGUE */ 

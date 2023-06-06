@@ -14,7 +14,7 @@ export default function index() {
         container: {
             position: "absolute",
             backgroundColor: color,
-            zIndex: 2,
+            zIndex: 9999,
             right: 10,
             top: top,
             paddingHorizontal: 10,

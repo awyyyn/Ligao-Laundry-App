@@ -24,6 +24,7 @@ import { useState } from 'react';
 import { setUser, setSession } from '../../features/userSlice';
 import { useEffect } from 'react';
 import { useDrawerStatus } from '@react-navigation/drawer';
+import LoadingV2 from '../components/LoadingScreen/loadingV2';
 
 export default function Profile() { 
     
@@ -57,7 +58,7 @@ export default function Profile() {
         <Provider>
             <View style={[styles.container, {paddingTop: isLoading ? 50 : 20 }]}>   
                 {isLoading && (<Loading />)} 
-                {isLoadingUi && (<Loading />)}
+                {isLoadingUi && (<LoadingV2 />)}
                 <ResetPassModal  />
                 <Notify /> 
                 <View> 

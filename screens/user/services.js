@@ -5,7 +5,9 @@ export default services = [
       subheading: "Dry and Fold",
       blurr: 8,
       price: "25",
-      description: ""
+      description: "",
+      label: 'Wash',
+      value: 'Wash',
     },
     {
       image: require("../../assets/hand-wash.jpg"),
@@ -13,7 +15,9 @@ export default services = [
       subheading: "Dry and Fold",
       blurr: 6,
       price: "50",
-      description: ""
+      description: "",
+      label: "Hand Wash",
+      value: "Hand Wash"
     },
     {
       image: require("../../assets/press.jpeg"),
@@ -21,7 +25,9 @@ export default services = [
       subheading: null,
       blurr: 5,
       price: "80",
-      description: ""
+      description: "",
+      label: "Wash & Press",
+      value: "Wash & Press"
     },
     {
       image: require("../../assets/comforter.jpg"),
@@ -29,7 +35,9 @@ export default services = [
       subheading: null,
       blurr: 7,
       price: "80",
-      description: ""
+      description: "",
+      label: "Comforter",
+      value: "Comforter"
     },
     {
       image: require("../../assets/blankets.jpg"),
@@ -37,7 +45,9 @@ export default services = [
       subheading: null,
       blurr: 2,
       price: "45",
-      description: ""
+      description: "",
+      label: "Curtains & Blanket",
+      value: "Curtains & Blanket"
     },
     {
       image: require("../../assets/seat-cover.jpg"),
@@ -45,7 +55,9 @@ export default services = [
       subheading: null,
       blurr: 4,
       price: "50",
-      description: ""
+      description: "",
+      label: "Seat Cover",
+      value: "Seat Cover"
     },
     {
       image: require("../../assets/gown.jpg"),
@@ -53,6 +65,8 @@ export default services = [
       subheading: "Hand Wash",
       blurr: 2,
       price: "By quotation",
-      description: ""
+      description: "",
+      label: "Gown",
+      value: "Gown"
     },
   ]

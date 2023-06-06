@@ -1,7 +1,7 @@
  
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem, useDrawerStatus } from '@react-navigation/drawer';  
 import MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons' 
-import { IconButton, Surface, Text } from 'react-native-paper'; 
+import { Badge, IconButton, Surface, Text } from 'react-native-paper'; 
 import { StyleSheet } from 'react-native';
 import { View, Image } from 'react-native';
 import userscreens from './userscreens';
@@ -12,6 +12,7 @@ import { removeUser, setSession, } from '../features/userSlice';
 import { supabase } from '../supabaseConfig';
 import { setLoadingFalse, setLoadingTrue } from '../features/uxSlice'
 import { DrawerActions, useNavigation } from '@react-navigation/native'; 
+import Feather from 'react-native-vector-icons/Feather'
 
 
 const Drawer = createDrawerNavigator();
@@ -22,15 +23,15 @@ export default function UserNavigation() {
     const { isLoading } = useSelector((state) => state.ux) 
 
     const handleLogout = async() => { 
-        dispatch(setLoadingTrue())
-        navigation.dispatch(DrawerActions.closeDrawer())
+        dispatch(setLoadingTrue()) 
+        navigation.dispatch(DrawerActions.closeDrawer()); 
         await supabase.auth.signOut();
-        setTimeout(() => {
-            dispatch(setSession(null))
-            dispatch(removeUser())
-            navigation.replace('signin')
-            dispatch(setLoadingFalse())
-        }, 3000)
+        // setTimeout(() => {
+        dispatch(setSession(null))
+        dispatch(removeUser())
+        navigation.replace('signin');
+        dispatch(setLoadingFalse())
+        // }, 3000)
     }
 
     const logoutButton = () => (
@@ -41,6 +42,8 @@ export default function UserNavigation() {
             <Text style={[{color: '#CC0000', fontSize: 20, marginLeft: 15}]}>Logout</Text>
         </View>
     )
+
+    
 
     return (
         <Drawer.Navigator   
@@ -74,6 +77,7 @@ export default function UserNavigation() {
                     // display: isLoading ? 'none' : 'flex'
                 },
                 headerTintColor: "white"    ,
+                
 
                 // headerRight: () => ( 
                 //     <IconButton icon='logout' iconColor='white' />
@@ -116,9 +120,21 @@ export default function UserNavigation() {
                         options={{
                             headerTitle: screen.label,  
                             drawerLabel: ({ focused }) => (
-                                <View style={styles.navItems}>
+                                <View style={styles.navItems}> 
                                     <MaterialCommunityIcons name={screen.icon} size={25} color={focused ? '#00667E' : 'dimgray'} />
                                     <Text style={[focused ? styles.active : styles.inActive, styles.labels]}>{screen.label}</Text>
+                                    {screen.name == 'message' ? 
+                                        <Badge 
+                                            style={{position: 'absolute', top: 0, left: 120, backgroundColor: '#FF0000'}}
+                                        >8</Badge> 
+                                        : ''
+                                    }
+                                </View>
+                            ),
+                            headerRight: () => (
+                                <View>    
+                                    <Feather name='message-square' size={25} style={{paddingRight: 10, }} color='#fff' />
+                                    
                                 </View>
                             )
                         }}    

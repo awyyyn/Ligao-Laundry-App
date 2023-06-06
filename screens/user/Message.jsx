@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import { compose } from '@reduxjs/toolkit';
 
 export default function Message() { 
-    const { session } = useSelector(state => state.user)
+    const { session, user } = useSelector(state => state.user)
     const [message, setMessage] = useState('');
     const [focus, setFocus] = useState(false);
     const [dataArr, setData] = useState([])
@@ -55,20 +55,20 @@ export default function Message() {
     // useEffect(() => {
     //     const subscription = supabase.channel('messages_channel').on()
 
-
+    console.log(user.name)
     // }, [])
 
     const handleSubmit = async() => {
         Keyboard.dismiss();  
         setMessage('')
-        const { error } = await supabase.from('message_channel').insert({sender_id: session, recipent_id: 'admin', message: message})  
+        const { error } = await supabase.from('message_channel').insert({sender_id: session, recipent_id: 'admin', message: message, name: user.name})  
         if(error) {
             return console.log(error.message)
         }
     }
   
       
-    
+    // console.log(JSON.parse(dataArr))
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -83,9 +83,10 @@ export default function Message() {
                         
                             const date = new Date(item.created_at);
                             const readable =  date.toLocaleString('en-us', { timeZone: 'Asia/Manila'}); 
+                            // console.log('name', item.name)
                             
                             return( 
-                                <View style={{paddingHorizontal: 5, marginVertical: 8, alignItems: item.sender_id == session ? 'flex-end' : 'flex-start'}}>
+                                <View style={{paddingHorizontal: 5, marginVertical: 8, alignItems: item.name != null ? 'flex-end' : 'flex-start'}}>
                                     <View  
                                         onPress={() => {
                                             console.log("ALERT")

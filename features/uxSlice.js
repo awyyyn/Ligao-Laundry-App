@@ -18,7 +18,8 @@ initialState = {
     emailCodeModal: {
         email: '',
         isOpen: false
-    }
+    },
+    messageBadge: 0
 }
 
 const uxSlice = createSlice({
@@ -88,6 +89,9 @@ const uxSlice = createSlice({
         emailCodeModal: (state, { payload: { isOpen, email} }) => {
             state.emailCodeModal.email = email
             state.emailCodeModal.isOpen = isOpen
+        },
+        toggleMessageBadge: (state, {payload}) => {
+            state.messageBadge = payload.badge
         }
     }
 })
@@ -108,6 +112,7 @@ export const {
     toggleIsLoading,
     closeNotify,
     emailCodeModal,
-    closeAllToggle
+    closeAllToggle,
+    toggleMessageBadge
 } = uxSlice.actions;
 export default uxSlice.reducer

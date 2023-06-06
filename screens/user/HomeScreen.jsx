@@ -44,7 +44,7 @@ export default function HomeScreen() {
           <Modal  
           />
         </Portal>
-        <ScrollView>
+        <ScrollView scrollEnabled={!isLoading}>
           {
             isLoading && (<Loading />)
           }
