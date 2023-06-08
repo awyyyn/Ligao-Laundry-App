@@ -54,8 +54,6 @@ export default function Message() {
 
     // useEffect(() => {
     //     const subscription = supabase.channel('messages_channel').on()
-
-    console.log(user.name)
     // }, [])
 
     const handleSubmit = async() => {

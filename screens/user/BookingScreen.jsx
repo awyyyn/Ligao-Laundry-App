@@ -260,7 +260,7 @@ export default function BookScreen() {
                           time: getTime,
                           date: date.toLocaleString().split(',')[0]
                         }).select()
-                        console.log(data)
+                        // console.log(data)
                         if(error) console.log(error)
                         dispatch(toggleNotify({
                           isOpen: true,

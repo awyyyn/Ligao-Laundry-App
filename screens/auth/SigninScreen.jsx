@@ -47,10 +47,10 @@ export default function SigninScreen() {
         Keyboard.dismiss();
         dispatch(setLoadingTrue());
         const phone = `+63${values.phone.slice(1)}`;
-        console.log('loading...')
+        // console.log('loading...')
         /* CHECK IF PHONE NUMBER IS REGISTERED */
         const { data: phoneData } = await supabase.from('customers').select('phone').eq('phone', `63${values.phone.slice(1)}`)
-        console.log(phoneData) 
+        // console.log(phoneData) 
         
         if(phoneData?.length == 0){
             dispatch(setLoadingFalse())
@@ -73,7 +73,7 @@ export default function SigninScreen() {
 
         /* IF ERROR IS TRUE, SET ERROR TO DISPLAY DIALOGUE */ 
         if(error?.status == 400){
-            console.log(data) 
+            // console.log(data) 
             dispatch(setLoadingFalse());
             return  setPassErr('Incorrect Password!')
         } 
