@@ -69,7 +69,7 @@ export default function Message() {
     // console.log(JSON.parse(dataArr))
 
     return (
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <View onPress={() => Keyboard.dismiss()} >
             <View style={styles.container}>
                 <View style={styles.messagesContainer}> 
                     <FlatList
@@ -127,7 +127,7 @@ export default function Message() {
                     /> 
                 </View>
             </View>
-        </TouchableWithoutFeedback>
+        </View>
     )
 }
 

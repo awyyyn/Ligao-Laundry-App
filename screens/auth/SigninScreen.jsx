@@ -84,7 +84,9 @@ export default function SigninScreen() {
         /* SET TOKENS IN ASYNC STORAGE */
         await AsyncStorage.setItem('access_token', data.session.access_token)
         await AsyncStorage.setItem('refresh_token', data.session.refresh_token)
-
+         
+        await AsyncStorage.setItem('@session_key', data.session.user.id);
+ 
         /* SET USER STATE */
         const { data: user_data } = await supabase.from('customers').select('*').eq('user_id', data?.session?.user?.id);
         dispatch(setUser(user_data))

@@ -7,6 +7,9 @@ import SignupScreen from '../screens/auth/SignupScreen';
 import VerifytOTPScreen from '../screens/auth/VeriftyOTPScreen'; 
 import UserNavigation from './UserNavigation'; 
 import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,15 +47,36 @@ const stacks = [
 ]
 
 
-export default function AuthNavigation() {
-  const { session } = useSelector(state => state.user) 
+export default function AuthNavigation() { 
+  const [sessionState, setSessionState] = useState()
 
-  const initialRouteName = /* session ? 'user' : 'signin'; */ 'user'
+  const navigation = useNavigation(); 
+  const getStoredSession = async() => {
+    try {
+      const value = await AsyncStorage.getItem('@session_key');
+      if(value){ 
+        setSessionState(value)
+      }else{
+        setSessionState(null)
+      }
+      console.log("CHANGE SCREEN")
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  useEffect(() => {
+    getStoredSession();
+  }, [navigation])
+
+
+   
+
+  const initialRouteName = sessionState ? 'user' : 'signin';  
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: false, 
-        
+        headerShown: false,  
       }}
       initialRouteName={initialRouteName} 
     >

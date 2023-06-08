@@ -92,6 +92,9 @@ export default function SignupScreen({navigation}) {
         await AsyncStorage.setItem('access_token', data.session.access_token)
         await AsyncStorage.setItem('refresh_token', data.session.refresh_token)
         
+        await AsyncStorage.setItem('@session_key', data.session.user.id);
+
+        
         /* SET STATE SESSION */
         dispatch(setSession(data?.session?.user?.id)) 
         dispatch(setUser(setData));

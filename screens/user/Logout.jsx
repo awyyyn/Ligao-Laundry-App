@@ -7,12 +7,14 @@ import { useDispatch } from 'react-redux'
 import { setSession } from '../../features/userSlice'
 import { setLoadingFalse } from '../../features/uxSlice'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function Logout() {
     const dispatch = useDispatch()
     const navigation = useNavigation();
     const logout = async() => {
         dispatch(setSession(null)) 
+        await AsyncStorage.clear()
         await supabase.auth.signOut();
         navigation.navigate('signin')
     }
