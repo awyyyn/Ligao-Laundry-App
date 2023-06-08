@@ -49,7 +49,7 @@ export default function Status() {
  
 
     // RENDER THIS IF THERE IS NO LAUNDRY TO CHECK
-    if(!laundry || laundry == undefined) {
+    if(!numOfLaundries || laundry == undefined) {
         return(
             <View style={globalStyle.container} >
                 <Surface elevation={2} style={styles.imgContainer}>
@@ -69,60 +69,60 @@ export default function Status() {
         
         <Provider>
             <Portal>
-            <StatusModal visible={modal} toDelete={toDelete} handleDismiss={() => setModal(false)} />
-                <SafeAreaView style={styles.container}>  
-                    {
-                        laundry.map((item) => { 
-                        console.log("ITEM", item.service_type)
-                        return (
-                            <View 
-                                key={item.id} 
-                                style={[
-                                    styles.row, styles.service, 
-                                    { 
-                                        backgroundColor: item.status == "pending" ? "rgba(0, 0, 0, 0.1)" : "rgba(12, 122, 156, 0.18)",
-                                        
-                                    }
-                                ]}
-                            >
-                                <View style={{display: 'flex', flexDirection: 'column'}}>    
-                                    <Text style={[styles.serviceText, {color: item.status == "pending" ? "rgba(0, 0, 0, 0.7)" : "#00667E"}]}>{item.service_type}</Text>
-                                    <Text style={{display: item.status == "pending" ? "none" : 'flex'}}>{item.status}</Text>
-                                </View>
-                                <View style={styles.row}>
-                                    {item.status == "pending" ?(
-                                            <View>
-                                                <Text>{item.status}...</Text> 
-                                            </View>
-                                        ) : (
-                                            <View>
-                                                <Text>Price: </Text>
-                                                <Text>990</Text>
-                                            </View>
-                                        )
-                                    }
-                                </View>
-                                <Text 
-                                    style={{
-                                        right: 0,
-                                        top: 0,
-                                        paddingHorizontal: 3, 
-                                        position: 'absolute',
-                                        backgroundColor: 'rgba(235, 52, 52, 0.8)',
-                                        color: '#FFFFFF',
-                                        display: item.status == "pending" ? "flex" : 'none'
-                                    }}
-                                    onPress={() => {
-                                        setToDelete(item)
-                                        setModal(true)
-                                    }}
-                                >Cancel</Text>
-                            </View>
-                        )
-                    })
-                } 
-                </SafeAreaView>
+                <StatusModal visible={modal} toDelete={toDelete} handleDismiss={() => setModal(false)} />
             </Portal>
+            <SafeAreaView style={styles.container}>  
+                {
+                    laundry.map((item) => { 
+                    console.log("ITEM", item.service_type)
+                    return (
+                        <View 
+                            key={item.id} 
+                            style={[
+                                styles.row, styles.service, 
+                                { 
+                                    backgroundColor: item.status == "pending" ? "rgba(0, 0, 0, 0.1)" : "rgba(12, 122, 156, 0.18)",
+                                    
+                                }
+                            ]}
+                        >
+                            <View style={{display: 'flex', flexDirection: 'column'}}>    
+                                <Text style={[styles.serviceText, {color: item.status == "pending" ? "rgba(0, 0, 0, 0.7)" : "#00667E"}]}>{item.service_type}</Text>
+                                <Text style={{display: item.status == "pending" ? "none" : 'flex'}}>{item.status}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                {item.status == "pending" ?(
+                                        <View>
+                                            <Text>{item.status}...</Text> 
+                                        </View>
+                                    ) : (
+                                        <View>
+                                            <Text>Price: </Text>
+                                            <Text>990</Text>
+                                        </View>
+                                    )
+                                }
+                            </View>
+                            <Text 
+                                style={{
+                                    right: 0,
+                                    top: 0,
+                                    paddingHorizontal: 3, 
+                                    position: 'absolute',
+                                    backgroundColor: 'rgba(235, 52, 52, 0.8)',
+                                    color: '#FFFFFF',
+                                    display: item.status == "pending" ? "flex" : 'none'
+                                }}
+                                onPress={() => {
+                                    setToDelete(item)
+                                    setModal(true)
+                                }}
+                            >Cancel</Text>
+                        </View>
+                    )
+                })
+            } 
+            </SafeAreaView>
         </Provider>
     ); 
 
@@ -134,6 +134,7 @@ const styles = StyleSheet.create({
         width: Dimensions.get('screen').width - 60,
         alignSelf: 'center',
         paddingTop: 5,
+        zIndex: 99,
         gap: 10,
     },  
     text: {

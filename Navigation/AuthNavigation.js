@@ -46,7 +46,8 @@ const stacks = [
 
 export default function AuthNavigation() {
   const { session } = useSelector(state => state.user) 
-  const initialRouteName = session ? 'user' : 'signin' 
+
+  const initialRouteName = /* session ? 'user' : 'signin'; */ 'user'
   return (
     <Stack.Navigator
       screenOptions={{

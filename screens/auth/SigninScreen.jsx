@@ -94,7 +94,7 @@ export default function SigninScreen() {
     }
 
     
-    return ( 
+    return (    
         <Provider>
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                 <View style={globalStyles.container}>  

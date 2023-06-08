@@ -1,8 +1,7 @@
 {
-  
   "expo": {
     "name": "Ligao Laundry",
-    "slug": "Ligao Laundry",
+    "slug": "ligao-laundry",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -30,9 +29,8 @@
     },
     "extra": {
       "eas": {
-        "projectId": "c16f9d8b-9e53-44a8-aa89-28785e102c78"
+        "projectId": "2e07e4e0-9e94-4e16-8d75-bd7511bee65e"
       }
-      
     }
   }
 }

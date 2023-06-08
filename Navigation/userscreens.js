@@ -6,7 +6,8 @@ import {
     Record,
     Status,
     Profile,
-    ResetPassword
+    ResetPassword,
+    Logout
 } from '../screens/user/index'
 
 export default userscreens = [
@@ -51,5 +52,11 @@ export default userscreens = [
         name: 'records',
         screen: Record,
         icon: 'book-alphabet'
+    },
+    {
+        label: "Logout",
+        name: "logout",
+        screen: Logout,
+        icon: 'logout'
     }
 ]

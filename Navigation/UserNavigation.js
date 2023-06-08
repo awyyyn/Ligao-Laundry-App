@@ -13,6 +13,7 @@ import { supabase } from '../supabaseConfig';
 import { setLoadingFalse, setLoadingTrue } from '../features/uxSlice'
 import { DrawerActions, useNavigation } from '@react-navigation/native'; 
 import Feather from 'react-native-vector-icons/Feather'
+import { useState } from 'react';
 
 
 const Drawer = createDrawerNavigator();
@@ -20,22 +21,21 @@ const Drawer = createDrawerNavigator();
 export default function UserNavigation() {
     const navigation = useNavigation();
     const dispatch = useDispatch();
-    const { isLoading } = useSelector((state) => state.ux) 
+    const { isLoading } = useSelector((state) => state.ux);
+    const [state, setState] = useState(''); 
 
     const handleLogout = async() => { 
-        dispatch(setLoadingTrue()) 
+        // dispatch(setLoadingTrue()) 
         navigation.dispatch(DrawerActions.closeDrawer()); 
         await supabase.auth.signOut();
         // setTimeout(() => {
         dispatch(setSession(null))
         dispatch(removeUser())
-        navigation.replace('signin');
-        dispatch(setLoadingFalse())
-        // }, 3000)
+        navigation.navigate('logout'); 
     }
 
     const logoutButton = () => (
-        <View 
+        <View
             style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}
         > 
             <MaterialCommunityIcons name='logout' size={25} color='#CC0000' />
@@ -47,33 +47,33 @@ export default function UserNavigation() {
 
     return (
         <Drawer.Navigator   
-            drawerContent={props => {
-                return (
-                    <DrawerContentScrollView {...props} contentContainerStyle={{height: Dimensions.get('screen').height - 50 , display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}> 
-                        <View>
-                            <DrawerItemList {...props} />
-                        </View>
-                        <DrawerItem 
-                            label={logoutButton}
-                            onPress={handleLogout} 
-                        />
-                    </DrawerContentScrollView>
-                )
-            }}
+            // drawerContent={props => {
+            //     return (
+            //         <DrawerContentScrollView {...props}  contentContainerStyle={{height: Dimensions.get('screen').height - 50 , display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}> 
+            //             <View>
+            //                 <DrawerItemList {...props} />
+            //             </View>
+            //             <DrawerItem 
+            //                 key='logout'
+            //                 label={logoutButton}
+            //                 onPress={handleLogout} 
+            //             /> 
+            //         </DrawerContentScrollView>
+            //     )
+            // }}
             initialRouteName='home'
             screenOptions={{
                 drawerActiveBackgroundColor: "rgba(0,127,157,0.1)",
                 drawerActiveTintColor: "#00667E",
                 drawerInactiveTintColor: 'dimgray',
                 drawerAllowFontScaling: true,
-                drawerType: 'slide',
-                headerShown: isLoading ? false : true,
+                drawerType: 'slide', 
                 drawerLabelStyle: {
                     fontSize: 20
                 }, 
                 headerTitleAlign: "left",
                 headerStyle:{ 
-                    backgroundColor: "#00667E", 
+                    backgroundColor: "#00667E",  
                     // display: isLoading ? 'none' : 'flex'
                 },
                 headerTintColor: "white"    ,
@@ -89,6 +89,9 @@ export default function UserNavigation() {
                 component={HomeScreen} 
                 options={{ 
                     drawerActiveBackgroundColor: 'rgba(0,127,157,0.1)',
+                    headerStyle: {
+                        display: 'none'
+                    },
                     drawerLabel: ({focused}) => (
                         <View style={styles.container}>     
                             <Surface elevation={10} style={{borderRadius: 100}}> 
@@ -113,28 +116,36 @@ export default function UserNavigation() {
 
             {
                 userscreens.map((screen) => (
-                    <Drawer.Screen  
+                    <Drawer.Screen   
                         key={screen.name}
                         name={screen.name} 
                         component={screen.screen} 
                         options={{
+                            
+                            // headerTransparent: screen.name  == "logout" ? true : false,
                             headerTitle: screen.label,  
                             drawerLabel: ({ focused }) => (
-                                <View style={styles.navItems}> 
-                                    <MaterialCommunityIcons name={screen.icon} size={25} color={focused ? '#00667E' : 'dimgray'} />
-                                    <Text style={[focused ? styles.active : styles.inActive, styles.labels]}>{screen.label}</Text>
+                                <View style={[styles.navItems, ]}> 
+                                    <MaterialCommunityIcons name={screen.icon} size={25} color={focused ? '#00667E' : screen.name == "logout" ? 'red' : 'dimgray'} />
+                                    <Text style={[focused ? styles.active : screen.name == "logout" ? styles.logout : styles.inActive, styles.labels]}>{screen.label}</Text>
                                     {screen.name == 'message' ? 
-                                        <Badge 
+                                        <Badge  
                                             style={{position: 'absolute', top: 0, left: 120, backgroundColor: '#FF0000'}}
                                         >8</Badge> 
                                         : ''
                                     }
                                 </View>
                             ),
+                            // headerRightContainerStyle: {
+                            //     display: screen.name == 'logout' ? 'none' : 'flex'
+                            // },
+                            // headerLeftContainerStyle: {
+                            //     display: screen.name == 'logout' ? 'none' : 'flex'
+                            // },
+                            headerShown: screen.name == 'logout' ?  false : true,
                             headerRight: () => (
-                                <View>    
-                                    <Feather name='message-square' size={25} style={{paddingRight: 10, }} color='#fff' />
-                                    
+                                <View >    
+                                    <Feather name='message-square' size={25} style={{paddingRight: 10, }} color='#fff' /> 
                                 </View>
                             )
                         }}    
@@ -178,6 +189,13 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '400',
         marginLeft: 15
+    },
+    logout: {
+        color: 'red',
+        fontSize: 20,
+        fontWeight: '400',
+        marginLeft: 15
+
     },
     labels: {
         marginLeft: 15
