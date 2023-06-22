@@ -9,7 +9,7 @@ const initialState = {
         email: ''
     },
     messages: [],
-    notifications: null
+    notifications: []
 };
 
 
@@ -22,7 +22,7 @@ const userSlice = createSlice({
             state.session = payload
         }, 
         setUser(state, { payload }) {
-            console.log('slice data: ', payload)
+            // console.log('slice data: ', payload)
             state.user.address = payload[0].address;
             state.user.name = payload[0].name;
             state.user.email = payload[0].email;
@@ -38,11 +38,11 @@ const userSlice = createSlice({
         //     state.user.name = payload.name
         // }
         setMessages: (state, { payload }) => { 
-            console.log("PAYLOAD: ", payload)
+            // console.log("PAYLOAD: ", payload)
             state.messages = payload
         },
         setNotificaitons: (state, { payload }) => {
-
+            state.notifications = payload
         }
     }
 })

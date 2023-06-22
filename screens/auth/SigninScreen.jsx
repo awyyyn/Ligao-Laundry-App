@@ -132,7 +132,7 @@ export default function SigninScreen() {
                                     <Input 
                                         type='number-pad'
                                         placeholder="Phone Number"
-                                        left="account" 
+                                        left="phone" 
                                         value={values.phone}
                                         handleChange={handleChange('phone')}
                                         handleBlur={handleBlur('phone')}

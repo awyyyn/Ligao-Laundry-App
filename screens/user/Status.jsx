@@ -79,29 +79,24 @@ export default function Status() {
                         <View 
                             key={item.id} 
                             style={[
-                                styles.row, styles.service, 
+                                styles.service, 
                                 { 
                                     backgroundColor: item.status == "pending" ? "rgba(0, 0, 0, 0.1)" : "rgba(12, 122, 156, 0.18)",
                                     
                                 }
                             ]}
                         >
-                            <View style={{display: 'flex', flexDirection: 'column'}}>    
+                            <View >    
                                 <Text style={[styles.serviceText, {color: item.status == "pending" ? "rgba(0, 0, 0, 0.7)" : "#00667E"}]}>{item.service_type}</Text>
-                                <Text style={{display: item.status == "pending" ? "none" : 'flex'}}>{item.status}</Text>
-                            </View>
-                            <View style={styles.row}>
-                                {item.status == "pending" ?(
-                                        <View>
-                                            <Text>{item.status}...</Text> 
-                                        </View>
-                                    ) : (
-                                        <View>
-                                            <Text>Price: </Text>
-                                            <Text>990</Text>
-                                        </View>
-                                    )
-                                }
+                                <View style={[styles.row, {justifyContent: 'space-between'}]}>
+                                    <Text style={{display: item.status == "pending" ? "none" : 'flex'}}>{item.status}...</Text>
+                                    {item.status == "pending" ?( 
+                                            <Text>{item.status}...</Text>  
+                                        ) : ( 
+                                            <Text>Price: {item.price}</Text> 
+                                        )
+                                    }
+                                </View>
                             </View>
                             <Text 
                                 style={{
@@ -136,7 +131,7 @@ const styles = StyleSheet.create({
         paddingTop: 5,
         zIndex: 99,
         gap: 10,
-    },  
+    },   
     text: {
         marginTop: 20, 
         fontSize: 22

@@ -72,7 +72,8 @@ export default function AuthNavigation() {
 
    
 
-  const initialRouteName = sessionState ? 'user' : 'signin';  
+  const initialRouteName = sessionState ? 'user' : 'signin';
+
   return (
     <Stack.Navigator
       screenOptions={{

@@ -20,16 +20,17 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  console.log('homescreen check session', session); 
+  // console.log('homescreen check session', session); 
     
   const getMessages = async () => {
     const { data } = await supabase.from('message_channel').select().eq('sender_id', session)
     dispatch(setMessages(data))
   }
-  const getNotifications = async () => {
-    const { data } = await supabase.from('notificaiton').select().eq('recipent_id', session);
+
+  const getNotifications = async() => {
+    const { data } = await supabase.from('notification').select().eq('recipent_id', session)
     dispatch(setNotificaitons(data))
-  } 
+  }
 
   useEffect(() => {
     getMessages();

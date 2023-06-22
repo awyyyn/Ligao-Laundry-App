@@ -36,10 +36,10 @@ export default function Message() {
     useEffect(() => { 
         const subscription = supabase.channel('any')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message_channel' }, (payload) => {
-                console.log("paylod", payload)
-                console.log("paylod NEW", payload.new)
-                console.log("paylod OLD", payload.old)
-                console.log("paylod TABLE", payload.table)
+                // console.log("paylod", payload)
+                // console.log("paylod NEW", payload.new)
+                // console.log("paylod OLD", payload.old)
+                // console.log("paylod TABLE", payload.table)
                 setData((prevArr) => [
                     ...prevArr,
                     payload.new

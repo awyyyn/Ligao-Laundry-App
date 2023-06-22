@@ -13,6 +13,7 @@ import { supabase } from '../supabaseConfig';
 import { setLoadingFalse, setLoadingTrue } from '../features/uxSlice'
 import { DrawerActions, useNavigation } from '@react-navigation/native'; 
 import Feather from 'react-native-vector-icons/Feather'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 import { useState } from 'react';
 
 
@@ -76,8 +77,17 @@ export default function UserNavigation() {
                     backgroundColor: "#00667E",  
                     // display: isLoading ? 'none' : 'flex'
                 },
-                headerTintColor: "white"    ,
-                
+                headerTintColor: "white",
+                headerRight: () => (
+                    <View style={{paddingRight: 10, display: 'flex', columnGap: 10, flexDirection: 'row'}}>    
+                        <Ionicons name='ios-notifications-outline' size={25} color='#fff' onPress={() => {
+                            navigation.navigate('notification')
+                        }} />
+                        <Feather name='message-square' size={25}  color='#fff' onPress={() => {
+                            navigation.navigate('message')
+                        }} /> 
+                    </View>
+                )
 
                 // headerRight: () => ( 
                 //     <IconButton icon='logout' iconColor='white' />
@@ -89,9 +99,6 @@ export default function UserNavigation() {
                 component={HomeScreen} 
                 options={{ 
                     drawerActiveBackgroundColor: 'rgba(0,127,157,0.1)',
-                    headerStyle: {
-                        display: 'none'
-                    },
                     drawerLabel: ({focused}) => (
                         <View style={styles.container}>     
                             <Surface elevation={10} style={{borderRadius: 100}}> 
@@ -120,20 +127,13 @@ export default function UserNavigation() {
                         key={screen.name}
                         name={screen.name} 
                         component={screen.screen} 
-                        options={{
-                            
+                        options={{ 
                             // headerTransparent: screen.name  == "logout" ? true : false,
                             headerTitle: screen.label,  
                             drawerLabel: ({ focused }) => (
                                 <View style={[styles.navItems, ]}> 
                                     <MaterialCommunityIcons name={screen.icon} size={25} color={focused ? '#00667E' : screen.name == "logout" ? 'red' : 'dimgray'} />
                                     <Text style={[focused ? styles.active : screen.name == "logout" ? styles.logout : styles.inActive, styles.labels]}>{screen.label}</Text>
-                                    {screen.name == 'message' ? 
-                                        <Badge  
-                                            style={{position: 'absolute', top: 0, left: 120, backgroundColor: '#FF0000'}}
-                                        >8</Badge> 
-                                        : ''
-                                    }
                                 </View>
                             ),
                             // headerRightContainerStyle: {
@@ -143,11 +143,7 @@ export default function UserNavigation() {
                             //     display: screen.name == 'logout' ? 'none' : 'flex'
                             // },
                             headerShown: screen.name == 'logout' ?  false : true,
-                            headerRight: () => (
-                                <View >    
-                                    <Feather name='message-square' size={25} style={{paddingRight: 10, }} color='#fff' /> 
-                                </View>
-                            )
+                            
                         }}    
                     /> 
                 ))

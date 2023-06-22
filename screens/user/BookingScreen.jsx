@@ -22,16 +22,18 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 
 export default function BookScreen() { 
 
-  async function getAvailableTime(datee) {
+  async function getAvailableTime(datee, s_type) {
     // console.log("DAATTEE", datee.toLocaleDateString()) 
-    const { data, error } = await supabase.from('laundries_table').select('time').eq('date', datee.toLocaleDateString())
+    const { data, error } = await supabase.from('laundries_table').select('time').match({'date': datee.toLocaleDateString(), service_type: s_type})
+    // console.log(data)
     setAvailableTime(data); 
   }  
+
   useEffect(() => { 
     const date = new Date(); 
-    getAvailableTime(date)
+    getAvailableTime(date, type)
 
-  }, []);
+  }, [date, type]);
 
   const [availableTime, setAvailableTime] = useState( );
   const { notify } = useSelector(state => state.ux)
@@ -126,7 +128,7 @@ export default function BookScreen() {
                       <Text style={{marginBottom: 5}}>Type of Service</Text>
                       <Picker
                         selectedValue={type}
-                        onValueChange={(item) => {
+                        onValueChange={async(item) => {
                           // console.log(item, 'INDEX', index)
                           setErrors(prev => ({...prev, typeErr: ''}));
                           const getItem = services.find((service) => service.label == item)
@@ -137,6 +139,7 @@ export default function BookScreen() {
                           }  
                           // console.log("ITEM", item)
                           settype(item);
+                          getAvailableTime(date, item)   
                         }} 
                         style={styles.picker} 
                         mode='dialog'
@@ -221,7 +224,7 @@ export default function BookScreen() {
                         Keyboard.dismiss();
                         setDate(datee);
                         setGetTime('Select Time')
-                        getAvailableTime(datee); 
+                        getAvailableTime(datee, type); 
                       }}
                       onCancel={() => {
                         setShowDatePicker(false)
@@ -265,7 +268,7 @@ export default function BookScreen() {
                         dispatch(toggleNotify({
                           isOpen: true,
                           label: "Booked Successfully",
-                          color: "#00cc00",
+                          color: "#00667E",
                           top: 10
                         }))
                         settype('Select Type')

@@ -38,17 +38,15 @@ export default function Profile() {
     }
     
     // console.log( typeof user.phone)
-    // let phone = '0' + String(user.phone).slice(2); 
+    // let phone = '0' + String(user.phone).slice(2);   
     // console.log(typeof phone) 
     const { isLoading, isLoadingUi, editName, editEmail, editPhone, editAddress } = useSelector(state => state.ux)
     const [customerName, setcustomerName] = useState(user.name); 
-    const phone = `0${String(user.phone).slice(2)}` 
-    console.log(phone)  
+    const phone = `0${String(user.phone).slice(2)}`  
     const [customerPhone, setcustomerPhone] = useState(phone);  
     const [customerEmail, setcustomerEmail] = useState(user.email);  
     const [customerAddress, setcustomerAddress] = useState(user.address);  
-    
-    console.log("USer; ", user)
+     
 
     const closeNotify = () => setTimeout(() => {
         dispatch(toggleNotify({isOpen: false, label: '', color: ''}))
@@ -232,7 +230,7 @@ export default function Profile() {
                                             }
                                             
                                             if(check.length == 1){
-                                                console.log(check)
+                                                // console.log(check)
                                                 dispatch(toggleIsLoading({toggle: false}));
                                                 return console.log('already exist')
                                             }
@@ -326,17 +324,14 @@ export default function Profile() {
                         style={{marginBottom: 10}} 
                         mode='elevated' 
                         buttonColor='#1691F1' 
-                        textColor='black'
+                        textColor='#FFFFFF'
                         onPress={useCallback(() => { 
                             dispatch(closeAllToggle())
                             dispatch(setVisibleModalPass())
                         })}
                     >
                         Reset Password
-                    </Button>
-                    {/* <Button buttonColor='#00667E' textColor='white' mode='elevated' style={{marginBottom: 10}}>
-                        Edit
-                    </Button> */}
+                    </Button> 
                     <Button buttonColor='red' textColor='white' mode='elevated' onPress={() => {
                         dispatch(closeAllToggle())
                     }}>
