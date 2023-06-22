@@ -24,7 +24,7 @@
     "formik": "^2.2.9",
     "install": "^0.13.0",
     "react": "18.2.0",
-    "react-native": "0.71.7",
+    "react-native": "0.71.8",
     "react-native-datepicker": "^1.7.2",
     "react-native-dropdown-select-list": "^2.0.4",
     "react-native-elevation": "^1.0.0",
