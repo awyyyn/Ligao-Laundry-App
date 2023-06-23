@@ -7,7 +7,7 @@ import { View, Image, TouchableOpacity } from 'react-native';
 import userscreens from './userscreens';
 import { HomeScreen, Logout } from '../screens/user';  
 import { useDispatch, useSelector } from 'react-redux';
-import { removeUser, setNotificaitons, setSession, setUnReadNotif, } from '../features/userSlice';
+import { removeUser, setLaundries, setNotificaitons, setSession, setUnReadNotif, } from '../features/userSlice';
 import { supabase } from '../supabaseConfig';
 import { setLoadingFalse, setLoadingTrue } from '../features/uxSlice' 
 import { DrawerActions, useNavigation } from '@react-navigation/native'; 
@@ -31,54 +31,30 @@ export default function UserNavigation() {
         dispatch(setNotificaitons(notification))
     }
 
+    const getLaundry = async() => {
+        const { data, error } = await supabase.from('laundries_table').select().eq('user_id', session); 
+        dispatch(setLaundries(data))
+    } 
+
     useEffect(() => {
         getUnreadNotification();
+        getLaundry();
         const subscription = supabase.channel('any')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'notification'}, (payload) => { 
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'notification'}, () => { 
             getUnreadNotification() 
+        })
+        .on('postgres_changes', { event: "*", schema: 'public', table: 'laundries_table'}, () => {
+            console.log("CHANGE IN LAUNDRIES STATUS")
+            getLaundry();
         })
         .subscribe();
 
         return () => supabase.removeChannel(subscription)
     }, [])
-
-    const handleLogout = async() => { 
-        // dispatch(setLoadingTrue()) 
-        navigation.dispatch(DrawerActions.closeDrawer()); 
-        await supabase.auth.signOut();
-        // setTimeout(() => {
-        dispatch(setSession(null))
-        dispatch(removeUser())
-        navigation.navigate('logout'); 
-    }
-
-    const logoutButton = () => (
-        <View
-            style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}
-        > 
-            <MaterialCommunityIcons name='logout' size={25} color='#CC0000' />
-            <Text style={[{color: '#CC0000', fontSize: 20, marginLeft: 15}]}>Logout</Text>
-        </View>
-    )
-
-    
+ 
 
     return (
-        <Drawer.Navigator   
-            // drawerContent={props => {
-            //     return (
-            //         <DrawerContentScrollView {...props}  contentContainerStyle={{height: Dimensions.get('screen').height - 50 , display: 'flex', justifyContent: 'space-between', flexDirection: 'column'}}> 
-            //             <View>
-            //                 <DrawerItemList {...props} />
-            //             </View>
-            //             <DrawerItem 
-            //                 key='logout'
-            //                 label={logoutButton}
-            //                 onPress={handleLogout} 
-            //             /> 
-            //         </DrawerContentScrollView>
-            //     )
-            // }}
+        <Drawer.Navigator    
             initialRouteName='home'
             screenOptions={{
                 drawerActiveBackgroundColor: "rgba(0,127,157,0.1)",
@@ -154,21 +130,14 @@ export default function UserNavigation() {
                         key={screen.name}
                         name={screen.name} 
                         component={screen.screen} 
-                        options={{ 
-                            // headerTransparent: screen.name  == "logout" ? true : false,
-                            headerTitle: screen.label,  
+                        options={{  
+                            headerTitle: screen.label == "Message" ? "Admin" : screen.label,  
                             drawerLabel: ({ focused }) => (
                                 <View style={[styles.navItems, ]}> 
                                     <MaterialCommunityIcons name={screen.icon} size={25} color={focused ? '#00667E' : screen.name == "logout" ? 'red' : 'dimgray'} />
                                     <Text style={[focused ? styles.active : screen.name == "logout" ? styles.logout : styles.inActive, styles.labels]}>{screen.label}</Text>
                                 </View>
-                            ),
-                            // headerRightContainerStyle: {
-                            //     display: screen.name == 'logout' ? 'none' : 'flex'
-                            // },
-                            // headerLeftContainerStyle: {
-                            //     display: screen.name == 'logout' ? 'none' : 'flex'
-                            // },
+                            ), 
                             headerShown: screen.name == 'logout' ?  false : true,
                             
                         }}    

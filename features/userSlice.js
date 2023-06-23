@@ -10,7 +10,9 @@ const initialState = {
     },
     messages: [],
     notifications: [],
-    unReadNotif: 0
+    unReadNotif: 0,
+    laundries: [],
+    laundriesLength: 0
 };
 
 
@@ -47,9 +49,12 @@ const userSlice = createSlice({
         },
         setUnReadNotif: (state, { payload }) => {
             state.unReadNotif = payload
+        },
+        setLaundries: (state, {payload}) => {
+            state.laundries = payload
         }
     }
 })
 
-export const { setSession, setUser, removeUser, setMessages, setNotificaitons, setUnReadNotif } = userSlice.actions; 
+export const { setSession, setUser, removeUser, setMessages, setNotificaitons, setUnReadNotif, setLaundries } = userSlice.actions; 
 export default userSlice.reducer

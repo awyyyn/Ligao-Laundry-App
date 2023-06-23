@@ -6,50 +6,45 @@ import { supabase } from '../../supabaseConfig'
 import { Modal, Portal, Provider, Surface } from 'react-native-paper';
 import { Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux'; 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusModal } from '../components';
 
 export default function Status() {
-    const { session } = useSelector((state) => state.user)
+    const { session, laundries } = useSelector((state) => state.user)
     const navigation = useNavigation(); 
     const [laundry, setLaundry] = useState();
     const [numOfLaundries, setNumOfLaundries] = useState(0); 
     const [modal, setModal] = useState(false);
-    const [toDelete, setToDelete] = useState();
-    console.log(numOfLaundries);
-    console.log(laundry)
+    const [toDelete, setToDelete] = useState(); 
+
+    console.log(laundries)
 
     // navigation.addListener('focus', () => {
     //     getLaundry();
     // })
-    const getLaundry = async() => {
-        const { data, error } = await supabase.from('laundries_table').select().eq('user_id', session);
-        setNumOfLaundries(data?.length);
-        setLaundry((prev) => (data));
-    } 
+    // const getLaundry = async() => {
+    //     const { data, error } = await supabase.from('laundries_table').select().eq('user_id', session);
+    //     setNumOfLaundries(data?.length);
+    //     setLaundry((prev) => (data));
+    // } 
 
-    useEffect(() => {
-        getLaundry()
-        const subscription = supabase.channel('any')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'laundries_table'}, (payload) => {
-                getLaundry();
-            }).subscribe()
+    // useEffect(() => {
+    //     getLaundry()
+    //     const subscription = supabase.channel('any')
+    //         .on('postgres_changes', { event: '*', schema: 'public', table: 'laundries_table'}, (payload) => {
+    //             getLaundry();
+    //         }).subscribe()
 
-        return () => {
-            supabase.removeChannel(subscription);
-        } 
-    }, []);
-
-    /* REALTIME */
-    
-
-    // console.log(laundry)
-    // console.log(numOfLaundries)
+    //     return () => {
+    //         supabase.removeChannel(subscription);
+    //     } 
+    // }, []);
+ 
  
 
     // RENDER THIS IF THERE IS NO LAUNDRY TO CHECK
-    if(!numOfLaundries || laundry == undefined) {
+    if(laundries.length == 0) {
         return(
             <View style={globalStyle.container} >
                 <Surface elevation={2} style={styles.imgContainer}>
@@ -73,43 +68,36 @@ export default function Status() {
             </Portal>
             <SafeAreaView style={styles.container}>  
                 {
-                    laundry.map((item) => { 
-                    console.log("ITEM", item.service_type)
+                    laundries.map((laundry) => {  
                     return (
                         <View 
-                            key={item.id} 
+                            key={laundry.id} 
                             style={[
                                 styles.service, 
                                 { 
-                                    backgroundColor: item.status == "pending" ? "rgba(0, 0, 0, 0.1)" : "rgba(12, 122, 156, 0.18)",
+                                    backgroundColor: laundry.status == "pending" ? "rgba(0, 0, 0, 0.1)" : "rgba(12, 122, 156, 0.18)",
                                     
                                 }
                             ]}
                         >
                             <View >    
-                                <Text style={[styles.serviceText, {color: item.status == "pending" ? "rgba(0, 0, 0, 0.7)" : "#00667E"}]}>{item.service_type}</Text>
+                                <Text style={[styles.serviceText, {color: laundry.status == "pending" ? "rgba(0, 0, 0, 0.7)" : "#00667E"}]}>
+                                    {laundry.service_type}
+                                </Text>
                                 <View style={[styles.row, {justifyContent: 'space-between'}]}>
-                                    <Text style={{display: item.status == "pending" ? "none" : 'flex'}}>{item.status}...</Text>
-                                    {item.status == "pending" ?( 
-                                            <Text>{item.status}...</Text>  
+                                    <Text style={{display: laundry.status == "pending" ? "none" : 'flex'}}>{laundry.status}...</Text>
+                                    {laundry.status == "pending" ?( 
+                                            <Text>{laundry.status}...</Text>  
                                         ) : ( 
-                                            <Text>Price: {item.price}</Text> 
+                                            <Text>Price: {laundry.price}</Text> 
                                         )
                                     }
                                 </View>
                             </View>
                             <Text 
-                                style={{
-                                    right: 0,
-                                    top: 0,
-                                    paddingHorizontal: 3, 
-                                    position: 'absolute',
-                                    backgroundColor: 'rgba(235, 52, 52, 0.8)',
-                                    color: '#FFFFFF',
-                                    display: item.status == "pending" ? "flex" : 'none'
-                                }}
+                                style={[styles.textCancel, {display: laundry.status == "pending" ? "flex" : 'none'}]}
                                 onPress={() => {
-                                    setToDelete(item)
+                                    setToDelete(laundry)
                                     setModal(true)
                                 }}
                             >Cancel</Text>
@@ -153,6 +141,14 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         // backgroundColor: 'rgba(12, 122, 156, 0.18)',
         padding: 15
-    }, 
+    },
+    textCancel: {
+        right: 0,
+        top: 0,
+        paddingHorizontal: 3, 
+        position: 'absolute',
+        backgroundColor: 'rgba(235, 52, 52, 0.8)',
+        color: '#FFFFFF',
+    } 
 })
   
