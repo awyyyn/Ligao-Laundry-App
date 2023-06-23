@@ -9,10 +9,11 @@ const initialState = {
         email: ''
     },
     messages: [],
+    unreadMessage: 0,
     notifications: [],
     unReadNotif: 0,
     laundries: [],
-    laundriesLength: 0
+    // laundriesLength: 0
 };
 
 
@@ -52,9 +53,12 @@ const userSlice = createSlice({
         },
         setLaundries: (state, {payload}) => {
             state.laundries = payload
+        },
+        setUnreadMessages: (state, { payload }) => {
+            state.unreadMessage = payload;
         }
     }
 })
 
-export const { setSession, setUser, removeUser, setMessages, setNotificaitons, setUnReadNotif, setLaundries } = userSlice.actions; 
+export const { setSession, setUser, removeUser, setMessages, setNotificaitons, setUnReadNotif, setLaundries, setUnreadMessages } = userSlice.actions; 
 export default userSlice.reducer

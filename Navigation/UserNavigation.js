@@ -7,7 +7,7 @@ import { View, Image, TouchableOpacity } from 'react-native';
 import userscreens from './userscreens';
 import { HomeScreen, Logout } from '../screens/user';  
 import { useDispatch, useSelector } from 'react-redux';
-import { removeUser, setLaundries, setNotificaitons, setSession, setUnReadNotif, } from '../features/userSlice';
+import { removeUser, setLaundries, setMessages, setNotificaitons, setSession, setUnReadNotif, setUnreadMessages, } from '../features/userSlice';
 import { supabase } from '../supabaseConfig';
 import { setLoadingFalse, setLoadingTrue } from '../features/uxSlice' 
 import { DrawerActions, useNavigation } from '@react-navigation/native'; 
@@ -21,7 +21,7 @@ const Drawer = createDrawerNavigator();
 export default function UserNavigation() {
     const navigation = useNavigation();
     const dispatch = useDispatch();
-    const { session, unReadNotif } = useSelector(state => state.user)
+    const { session, unReadNotif, unreadMessage } = useSelector(state => state.user)
     const { isLoading } = useSelector((state) => state.ux);  
 
     const getUnreadNotification = async() => {
@@ -36,16 +36,32 @@ export default function UserNavigation() {
         dispatch(setLaundries(data))
     } 
 
-    useEffect(() => {
+    const getMessages = async () => {
+        const { data } = await supabase.from('message_channel').select().eq('sender_id', session);
+        dispatch(setMessages(data));
+    }
+
+    const getUnreadMessages = async() => { 
+        const { data } = await supabase.from('message_channel').select().match({sender_id: session, is_read_by_customer: false });
+        dispatch(setUnreadMessages(data.length));
+    }
+
+    useEffect(() => { 
+        getMessages();
         getUnreadNotification();
         getLaundry();
+        getUnreadMessages();
         const subscription = supabase.channel('any')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'notification'}, () => { 
             getUnreadNotification() 
         })
         .on('postgres_changes', { event: "*", schema: 'public', table: 'laundries_table'}, () => {
-            console.log("CHANGE IN LAUNDRIES STATUS")
+            // console.log("CHANGE IN LAUNDRIES STATUS")
             getLaundry();
+        })
+        .on('postgres_changes', { event: "INSERT", schema: 'public', table: 'message_channel'}, () => {
+            // console.log("CHANGE IN LAUNDRIES STATUS")
+            getUnreadMessages();
         })
         .subscribe();
 
@@ -81,12 +97,16 @@ export default function UserNavigation() {
                                 {unReadNotif}
                             </Badge>
                         </TouchableOpacity>
-                        <TouchableOpacity style={{position: 'relative'}}>
-                            <Feather name='message-square' size={25}  color='#fff' onPress={() => {
+                        <TouchableOpacity 
+                            style={{position: 'relative'}} 
+                            onPress={async() => {
+                                await supabase.from('message_channel').update({'is_read_by_customer': true}).eq('sender_id', session).select();
                                 navigation.navigate('message')
-                            }} /> 
-                            <Badge visible style={{position: 'absolute', top: -5, right: -5, color: '#FFFFFF', backgroundColor: '#FF0000'}}>
-                                2
+                            }} 
+                        >
+                            <Feather name='message-square' size={25}  color='#fff' /> 
+                            <Badge visible={unreadMessage} style={{position: 'absolute', top: -5, right: -5, color: '#FFFFFF', backgroundColor: '#FF0000'}}>
+                                {unreadMessage}
                             </Badge>
                         </TouchableOpacity>
                     </View>
@@ -192,4 +212,6 @@ const styles = StyleSheet.create({
     labels: {
         marginLeft: 15
     }
-})
+});
+
+ 

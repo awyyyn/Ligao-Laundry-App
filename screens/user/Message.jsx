@@ -7,30 +7,28 @@ import { useRef } from 'react';
 import { useEffect } from 'react';
 import { FlatList } from 'react-native';
 import { supabase } from '../../supabaseConfig';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { compose } from '@reduxjs/toolkit';
+import { useNavigation } from '@react-navigation/native'; 
+import { setUnreadMessages } from '../../features/userSlice';
 
 export default function Message() { 
-    const { session, user } = useSelector(state => state.user)
+    const { session, user, messages } = useSelector(state => state.user)
     const [message, setMessage] = useState('');
     const [focus, setFocus] = useState(false);
-    const [dataArr, setData] = useState([])
-    const [show, setShow] = useState(false)
-    const getData = async () => {
-        const { data } = await supabase.from('message_channel').select().eq('sender_id', session)
-        console.log(data)
-        setData(data)
-    }
-    
+    const [dataArr, setData] = useState(messages);
+    const navigation = useNavigation();
+    const [show, setShow] = useState(false);
+    const dispatch = useDispatch()
 
-    useEffect(() => {
-        getData()
-    }, [])
+    const updateUnread = async () => {
+        await supabase.from('message_channel').update({'is_read_by_customer': true}).eq('sender_id', session)
+    } 
 
-
-    // const get_messages = async() => {
-    //     const { data, error } = await supabase.from('messages_channel').select().eq('sender_id', session)
-    // }
+    const getUnreadMessages = async() => { 
+        const { data } = await supabase.from('message_channel').select().match({sender_id: session, is_read_by_customer: false });
+        dispatch(setUnreadMessages(data.length))  
+    } 
 
     // console.log(dataArr)
     useEffect(() => { 
@@ -40,33 +38,30 @@ export default function Message() {
                 // console.log("paylod NEW", payload.new)
                 // console.log("paylod OLD", payload.old)
                 // console.log("paylod TABLE", payload.table)
+                updateUnread();
                 setData((prevArr) => [
                     ...prevArr,
                     payload.new
-                ])
+                ]);
+                getUnreadMessages();
+                dispatch(setUnreadMessages(0));
             }).subscribe()
 
-        return () => {
-            supabase.removeChannel(subscription);
-        }
+        return () => supabase.removeChannel(subscription); 
         
     }, [])
-
-    // useEffect(() => {
-    //     const subscription = supabase.channel('messages_channel').on()
-    // }, [])
+ 
 
     const handleSubmit = async() => {
         Keyboard.dismiss();  
         setMessage('')
-        const { error } = await supabase.from('message_channel').insert({sender_id: session, recipent_id: 'admin', message: message, name: user.name})  
+        if(message == "") return
+        const { error } = await supabase.from('message_channel').insert({sender_id: session, recipent_id: 'admin', message: message, name: user.name, is_read_by_customer: true})  
         if(error) {
             return console.log(error.message)
         }
     }
-  
-      
-    // console.log(JSON.parse(dataArr))
+   
 
     return (
         <View onPress={() => Keyboard.dismiss()} >
@@ -80,8 +75,7 @@ export default function Message() {
                         renderItem={({item}) => {
                         
                             const date = new Date(item.created_at);
-                            const readable =  date.toLocaleString('en-us', { timeZone: 'Asia/Manila'}); 
-                            // console.log('name', item.name)
+                            const readable =  date.toLocaleString('en-us', { timeZone: 'Asia/Manila'});  
                             
                             return( 
                                 <View style={{paddingHorizontal: 5, marginVertical: 8, alignItems: item.name != null ? 'flex-end' : 'flex-start'}}>
