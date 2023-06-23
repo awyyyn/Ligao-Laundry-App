@@ -9,7 +9,8 @@ const initialState = {
         email: ''
     },
     messages: [],
-    notifications: []
+    notifications: [],
+    unReadNotif: 0
 };
 
 
@@ -43,9 +44,12 @@ const userSlice = createSlice({
         },
         setNotificaitons: (state, { payload }) => {
             state.notifications = payload
+        },
+        setUnReadNotif: (state, { payload }) => {
+            state.unReadNotif = payload
         }
     }
 })
 
-export const { setSession, setUser, removeUser, setMessages, setNotificaitons } = userSlice.actions; 
+export const { setSession, setUser, removeUser, setMessages, setNotificaitons, setUnReadNotif } = userSlice.actions; 
 export default userSlice.reducer

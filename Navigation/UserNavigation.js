@@ -3,18 +3,17 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerI
 import MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons' 
 import { Badge, IconButton, Surface, Text } from 'react-native-paper'; 
 import { StyleSheet } from 'react-native';
-import { View, Image } from 'react-native';
+import { View, Image, TouchableOpacity } from 'react-native';
 import userscreens from './userscreens';
 import { HomeScreen, Logout } from '../screens/user';  
-import { Dimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeUser, setSession, } from '../features/userSlice';
+import { removeUser, setNotificaitons, setSession, setUnReadNotif, } from '../features/userSlice';
 import { supabase } from '../supabaseConfig';
-import { setLoadingFalse, setLoadingTrue } from '../features/uxSlice'
+import { setLoadingFalse, setLoadingTrue } from '../features/uxSlice' 
 import { DrawerActions, useNavigation } from '@react-navigation/native'; 
 import Feather from 'react-native-vector-icons/Feather'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 const Drawer = createDrawerNavigator();
@@ -22,8 +21,26 @@ const Drawer = createDrawerNavigator();
 export default function UserNavigation() {
     const navigation = useNavigation();
     const dispatch = useDispatch();
-    const { isLoading } = useSelector((state) => state.ux);
-    const [state, setState] = useState(''); 
+    const { session, unReadNotif } = useSelector(state => state.user)
+    const { isLoading } = useSelector((state) => state.ux);  
+
+    const getUnreadNotification = async() => {
+        const { data } = await supabase.from('notification').select().match({recipent_id: session, is_read: false })
+        dispatch(setUnReadNotif(data.length));
+        const { data: notification } = await supabase.from('notification').select().eq('recipent_id', session)
+        dispatch(setNotificaitons(notification))
+    }
+
+    useEffect(() => {
+        getUnreadNotification();
+        const subscription = supabase.channel('any')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'notification'}, (payload) => { 
+            getUnreadNotification() 
+        })
+        .subscribe();
+
+        return () => supabase.removeChannel(subscription)
+    }, [])
 
     const handleLogout = async() => { 
         // dispatch(setLoadingTrue()) 
@@ -79,13 +96,23 @@ export default function UserNavigation() {
                 },
                 headerTintColor: "white",
                 headerRight: () => (
-                    <View style={{paddingRight: 10, display: 'flex', columnGap: 10, flexDirection: 'row'}}>    
-                        <Ionicons name='ios-notifications-outline' size={25} color='#fff' onPress={() => {
+                    <View style={{paddingRight: 20, display: 'flex', columnGap: 20, flexDirection: 'row'}}>    
+                        <TouchableOpacity style={{position: 'relative'}} onPress={() => {
                             navigation.navigate('notification')
-                        }} />
-                        <Feather name='message-square' size={25}  color='#fff' onPress={() => {
-                            navigation.navigate('message')
-                        }} /> 
+                        }}>
+                            <Ionicons name='ios-notifications-outline' size={25} color='#fff' />
+                            <Badge visible={unReadNotif} style={{position: 'absolute', top: -5, right: -5, color: '#FFFFFF', backgroundColor: '#FF0000'}} >
+                                {unReadNotif}
+                            </Badge>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{position: 'relative'}}>
+                            <Feather name='message-square' size={25}  color='#fff' onPress={() => {
+                                navigation.navigate('message')
+                            }} /> 
+                            <Badge visible style={{position: 'absolute', top: -5, right: -5, color: '#FFFFFF', backgroundColor: '#FF0000'}}>
+                                2
+                            </Badge>
+                        </TouchableOpacity>
                     </View>
                 )
 

@@ -152,8 +152,10 @@ export default function SigninScreen() {
                                         handleChange={handleChange('password')}
                                         handleBlur={handleBlur('password')}
                                         error={passErr ? passErr : errors.password} 
-                                        touched={touched.password}handlePress={() => {
-                                            setErr('')
+                                        touched={touched.password}
+                                        handlePress={() => {
+                                            setErr('');
+                                            setPassErr('')
                                         }}
                                     /> 
                                     <View>
