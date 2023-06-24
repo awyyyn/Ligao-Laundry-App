@@ -48,9 +48,11 @@ const stacks = [
 
 
 export default function AuthNavigation() { 
+  const { session } = useSelector(state => state.user);
+  console.log("SESSION RD", session)
   const [sessionState, setSessionState] = useState()
-
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();  
+  
   const getStoredSession = async() => {
     try {
       const value = await AsyncStorage.getItem('@session_key');
@@ -58,8 +60,7 @@ export default function AuthNavigation() {
         setSessionState(value)
       }else{
         setSessionState(null)
-      }
-      console.log("CHANGE SCREEN")
+      } 
     } catch (error) {
       console.log(error)
     }
@@ -67,10 +68,7 @@ export default function AuthNavigation() {
 
   useEffect(() => {
     getStoredSession();
-  }, [navigation])
-
-
-   
+  }, [session]);
 
   const initialRouteName = sessionState ? 'user' : 'signin';
 
@@ -82,7 +80,7 @@ export default function AuthNavigation() {
       initialRouteName={initialRouteName} 
     >
       {
-          stacks.map((stack) => ( 
+        stacks.map((stack) => ( 
           <Stack.Screen 
             key={stack.name}
             name={stack.name}

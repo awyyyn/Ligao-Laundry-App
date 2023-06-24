@@ -60,7 +60,7 @@ export default function UserNavigation() {
             getLaundry();
         })
         .on('postgres_changes', { event: "INSERT", schema: 'public', table: 'message_channel'}, () => {
-            // console.log("CHANGE IN LAUNDRIES STATUS")
+            // 
             getUnreadMessages();
         })
         .subscribe();

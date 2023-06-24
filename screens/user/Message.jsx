@@ -39,10 +39,12 @@ export default function Message() {
                 // console.log("paylod OLD", payload.old)
                 // console.log("paylod TABLE", payload.table)
                 updateUnread();
-                setData((prevArr) => [
-                    ...prevArr,
-                    payload.new
-                ]);
+                if(payload.new.sender_id == session){
+                    setData((prevArr) => [
+                        ...prevArr,
+                        payload.new
+                    ]);
+                }
                 getUnreadMessages();
                 dispatch(setUnreadMessages(0));
             }).subscribe()
