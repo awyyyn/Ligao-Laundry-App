@@ -1,6 +1,6 @@
 import { Dimensions, Keyboard, StyleSheet, Text, View, ScrollView } from 'react-native'
 import React, { useState } from 'react'
-import { Button, Divider, IconButton, TextInput } from 'react-native-paper'
+import { ActivityIndicator, Button, Divider, IconButton, TextInput } from 'react-native-paper'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { MessageContainer } from '../components';
 import { useRef } from 'react';
@@ -19,7 +19,7 @@ export default function Message() {
     const [dataArr, setData] = useState(messages);
     const navigation = useNavigation();
     const [show, setShow] = useState(false);
-    const dispatch = useDispatch()
+    const dispatch = useDispatch() 
 
     const updateUnread = async () => {
         await supabase.from('message_channel').update({'is_read_by_customer': true}).eq('sender_id', session)
@@ -38,30 +38,34 @@ export default function Message() {
                 // console.log("paylod NEW", payload.new)
                 // console.log("paylod OLD", payload.old)
                 // console.log("paylod TABLE", payload.table)
-                updateUnread();
-                setData((prevArr) => [
-                    ...prevArr,
-                    payload.new
-                ]);
-                getUnreadMessages();
+                console.log("sender", payload.new.sender_id)
+                console.log("reciever", payload.new.reciever_id)
+                if(payload.new.sender_id == session) {
+                    updateUnread();
+                    setData((prevArr) => [
+                        ...prevArr,
+                        payload.new
+                    ]);
+                    getUnreadMessages();
+                }
                 dispatch(setUnreadMessages(0));
             }).subscribe()
 
         return () => supabase.removeChannel(subscription); 
         
     }, [])
- 
-
+   
     const handleSubmit = async() => {
         Keyboard.dismiss();  
         setMessage('')
         if(message == "") return
-        const { error } = await supabase.from('message_channel').insert({sender_id: session, recipent_id: 'admin', message: message, name: user.name, is_read_by_customer: true})  
+        const { error } = await supabase.from('message_channel')
+            .insert({sender_id: session, recipent_id: 'admin', message: message, name: user.name, is_read_by_customer: true})  
         if(error) {
             return console.log(error.message)
         }
     }
-   
+     
 
     return (
         <View onPress={() => Keyboard.dismiss()} >
@@ -78,7 +82,7 @@ export default function Message() {
                             const readable =  date.toLocaleString('en-us', { timeZone: 'Asia/Manila'});  
                             
                             return( 
-                                <View style={{paddingHorizontal: 5, marginVertical: 8, alignItems: item.name != null ? 'flex-end' : 'flex-start'}}>
+                                <View style={[{alignItems: item.name != null ? 'flex-end' : 'flex-start'}, styles.messageAlert]}>
                                     <View  
                                         onPress={() => {
                                             console.log("ALERT")
@@ -160,5 +164,9 @@ const styles = StyleSheet.create({
         width: '10%', 
         justifyContent: 'center',
         alignSelf: 'center'
+    },
+    messageAlert: {
+        paddingHorizontal: 5, 
+        marginVertical: 8,
     }
 })

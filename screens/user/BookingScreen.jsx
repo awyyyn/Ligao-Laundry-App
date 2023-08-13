@@ -301,7 +301,7 @@ export default function BookScreen() {
 
 const styles = StyleSheet.create({
   container: { 
-    width: Dimensions.get('screen').width - 55 ,
+    width: Dimensions.get('screen').width - 30 ,
     display: 'flex',
     alignSelf: 'center' 
   },
@@ -314,7 +314,9 @@ const styles = StyleSheet.create({
     color: '#ff0000'
   },
   booknow_btn: {
-    color: "#00667E"
+    color: "#00667E",
+    width: '85%',
+    alignSelf: 'center'
   },
   picker: {
     backgroundColor: '#ffffff'

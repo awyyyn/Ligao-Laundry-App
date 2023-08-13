@@ -19,12 +19,13 @@ export default function index({
                 </View>
                 <Divider />
                 <View>
-                    <Text style={{fontSize: 22, paddingVertical: 20, textAlign: 'center'}}>Are you sure to cancel {toDelete?.service_type} booked in {toDelete?.date} at {toDelete?.time}?</Text>
+                    <Text style={{fontSize: 22, paddingVertical: 20, textAlign: 'center'}}>Are you sure to cancel {/* {toDelete?.service_type} booked in {toDelete?.date} at {toDelete?.time} */}this booked service?</Text>
                 </View>
                 <Divider />
                 <View 
                     style={{
                         display: 'flex',
+                        marginTop: 10,
                         flexDirection: 'row',
                         justifyContent: 'flex-end',
                         gap: 10

@@ -1,9 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import globalStyle from '../styles/auth-styles'
-import { Image } from 'react-native';
-import { supabase } from '../../supabaseConfig'
-import { Modal, Portal, Provider, Surface } from 'react-native-paper';
+import { Image } from 'react-native'; 
+import { Portal, Provider, Surface } from 'react-native-paper';
 import { Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux'; 
@@ -61,12 +60,12 @@ export default function Status() {
     }
 
     return (
-        
-        <Provider>
-            <Portal>
-                <StatusModal visible={modal} toDelete={toDelete} handleDismiss={() => setModal(false)} />
-            </Portal>
-            <SafeAreaView style={styles.container}>  
+        <> 
+            <Provider>
+                <Portal>
+                    <StatusModal visible={modal} toDelete={toDelete} handleDismiss={() => setModal(false)} />
+                </Portal>
+            <ScrollView style={styles.container}>
                 {
                     laundries.map((laundry) => {  
                     return (
@@ -75,8 +74,8 @@ export default function Status() {
                             style={[
                                 styles.service, 
                                 { 
-                                    backgroundColor: laundry.status == "pending" ? "rgba(0, 0, 0, 0.1)" : "rgba(12, 122, 156, 0.18)",
-                                    
+                                    borderColor: laundry.status == "pending" ? "rgba(0, 0, 0, 0.1)" : "#00667E",
+                                    borderWidth: 2
                                 }
                             ]}
                         >
@@ -85,28 +84,31 @@ export default function Status() {
                                     {laundry.service_type}
                                 </Text>
                                 <View style={[styles.row, {justifyContent: 'space-between'}]}>
-                                    <Text style={{display: laundry.status == "pending" ? "none" : 'flex'}}>{laundry.status}...</Text>
-                                    {laundry.status == "pending" ?( 
-                                            <Text>{laundry.status}...</Text>  
-                                        ) : ( 
-                                            <Text>Price: {laundry.price}</Text> 
-                                        )
-                                    }
+                                    <Text style={{
+                                        textTransform: 'capitalize',
+                                        display: laundry.status == "pending" ? "none" : 'flex'
+                                    }}>
+                                        {laundry.status == "done" ? "Ready to pick up" : `${laundry.status}...`}
+                                    </Text>
+                                    <Text>
+                                        {laundry.status == "pending" ?  laundry.status : laundry.price}
+                                    </Text> 
                                 </View>
                             </View>
                             <Text 
                                 style={[styles.textCancel, {display: laundry.status == "pending" ? "flex" : 'none'}]}
                                 onPress={() => {
+                                    console.log("PRESSED")
                                     setToDelete(laundry)
                                     setModal(true)
                                 }}
                             >Cancel</Text>
                         </View>
                     )
-                })
-            } 
-            </SafeAreaView>
-        </Provider>
+                })} 
+            </ScrollView> 
+            </Provider> 
+        </>
     ); 
 
     // RENDER IF THERE IS LAUNDRY TO CHECK
@@ -114,14 +116,13 @@ export default function Status() {
 
 const styles = StyleSheet.create({
     container: {
-        width: Dimensions.get('screen').width - 60,
-        alignSelf: 'center',
-        paddingTop: 5,
-        zIndex: 99,
-        gap: 10,
+        width: Dimensions.get('screen').width - 30,
+        alignSelf: 'center',   
+        paddingVertical: 10, 
+        marginBottom: 10,
+        zIndex: 99, 
     },   
-    text: {
-        marginTop: 20, 
+    text: { 
         fontSize: 22
     },
     imgContainer:{
@@ -140,7 +141,9 @@ const styles = StyleSheet.create({
     service: {
         justifyContent: 'space-between',
         // backgroundColor: 'rgba(12, 122, 156, 0.18)',
-        padding: 15
+        padding: 15,
+        marginVertical: 10,
+        borderRadius: 8
     },
     textCancel: {
         right: 0,

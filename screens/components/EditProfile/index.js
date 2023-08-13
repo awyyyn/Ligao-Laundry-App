@@ -28,7 +28,7 @@ export default function index({handleCancel}) {
                  
                 <View style={{marginBottom: 15}}>
                     <Text style={{fontSize: 35}}>Confirmation Code </Text>
-                    <Text style={{fontSize: 15}}>COnfirmation code to change your email address is sent to email: {email}</Text>
+                    <Text style={{fontSize: 15}}>Confirmation code to change your email address is sent to email: {email}</Text>
                 </View>
                 <Formik
                     initialValues={initialValues}
@@ -90,7 +90,7 @@ export default function index({handleCancel}) {
                                 inputMode="decimal"
                                 mode="outlined"
                                 style={{
-                                    fontSize: 30,
+                                    fontSize: 20,
                                     padding: 10
                                 }}
                                 contentStyle={{letterSpacing: 27, textAlign: 'center'}}

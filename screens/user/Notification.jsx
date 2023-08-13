@@ -10,6 +10,7 @@ import { setMessages, setNotificaitons, setUnReadNotif } from '../../features/us
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Entypo from 'react-native-vector-icons/Entypo'
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 
 
 export default function Notification() {
@@ -23,6 +24,7 @@ export default function Notification() {
  
 
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isOpenNotif, setIsOpenNotif] = useState(false);
   const [idDelete, setIdDelete] = useState();
   const [notifValue, setNotifValue] = useState({
@@ -34,15 +36,16 @@ export default function Notification() {
 
   return (
     <Provider>
-      <SafeAreaView  style={styles.container} >  
+      <View  style={styles.container} >  
         {
           notifications && !notifications.length ? (
-            <View style={{  width: '100%', height: 300}}>
-              <Text>NONE</Text>
+            <View style={{  width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center',}}>
+              <FontAwesome5 name="inbox" size={150} color="#00667E" style={{marginTop: -50}} />
+              <Text style={{color: 'gray'}}>You don't have more notifications to review</Text>
             </View>
           ) : (
             <FlatList 
-              style={{marginBottom: 20}}
+              style={{marginBottom: 20, paddingHorizontal: 20, }}
               inverted
               keyExtractor={(item) => item.id}
               data={notifications}
@@ -92,13 +95,18 @@ export default function Notification() {
                 <Button
                   style={{borderRadius: 5}}
                   onPress={async() => { 
-                    await supabase.from('notification').delete().eq('id', Number(idDelete)) 
-                    setIsOpen(false);
+                    setLoading(true);
+                    const data = await supabase.from('notification').delete().eq('id', Number(idDelete)).select() 
+                    console.log(data)
+                    setTimeout(() => {
+                      setLoading(false);
+                      setIsOpen(false);
+                    }, 2000)
                   }}
                   buttonColor='#FF0000'
                   textColor='#FFFFFF'
                 >
-                  Delete
+                  {loading ? 'Deleting...' : 'Delete'}
                 </Button>
               </View>
             </Dialog.Actions>
@@ -119,7 +127,7 @@ export default function Notification() {
             </View>
           </Modal>
         </Portal> 
-      </SafeAreaView>
+      </View>
     </Provider>
   )
 }
@@ -133,8 +141,6 @@ const styles = StyleSheet.create({
   },
   container: { 
     position: 'relative',
-    paddingHorizontal: 20,
-    marginTop: -20, 
   },
   dialog: {
     position: 'absolute',

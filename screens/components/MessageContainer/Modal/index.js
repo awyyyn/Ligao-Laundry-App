@@ -2,10 +2,10 @@
 import React from 'react'
 import { Button, Modal, Text } from 'react-native-paper' 
 import { Dimensions, View, StyleSheet } from 'react-native'
-import userStyles from '../../styles/user-styles'
+import userStyles from '../../../styles/user-styles'
 import { useNavigation } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
-import { closeModal } from '../../../features/modalSlice'
+import { closeModal } from '../../../../features/modalSlice'
 import { useCallback } from 'react'
 
 export default function index( ) {

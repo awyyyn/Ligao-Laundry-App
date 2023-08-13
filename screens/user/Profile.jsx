@@ -62,9 +62,9 @@ export default function Profile() {
                 <View> 
                     <Text
                     style={{
-                        fontSize: 32,
-                            marginBottom: 20
-                        }}
+                        fontSize: 28,
+                        marginBottom: 20
+                    }}
                     >Personal Information</Text> 
                     <View style={{marginBottom: 10}}>
                         <TextInput
@@ -220,7 +220,7 @@ export default function Profile() {
                                             }
                                             
                                             const { data: check, error: checkError} = await supabase
-                                            .from('customers')
+                                                .from('customers')
                                                 .select('phone')
                                                 .eq('phone', new_phone)
 
@@ -249,7 +249,7 @@ export default function Profile() {
                                                     return console.log("NETWORL ERROR")
                                                 }
                                                 dispatch(toggleIsLoading({toggle: false}));
-                                                dispatch(toggleNotify({isOpen: true, label: 'Phone Number changed!', color: 'rgb(78, 250, 136)', top: 10}))
+                                                dispatch(toggleNotify({isOpen: true, label: 'Phone Number changed!', color: '#00667E', top: 10}))
                                                 closeNotify();
                                                 dispatch(setUser(setSessionData))  
                                                 dispatch(setSession(data.user.id))

@@ -1,6 +1,15 @@
 import { StyleSheet, Dimensions } from "react-native";
 
 export default userStyles = StyleSheet.create({ 
+    
+    row: {
+        display: 'flex',
+        flexDirection: 'row'
+    },
+    col: {
+        display: 'flex',
+        flexDirection: 'column'
+    },
     hr: {
         borderBottomColor: '#00667E',
         borderBottomWidth: 1,
