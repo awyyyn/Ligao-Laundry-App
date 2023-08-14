@@ -9,6 +9,11 @@ initialState = {
     editEmail: false,
     editPhone: false,
     editAddress: false,
+    globalDialog: {
+        isOpen: false,
+        title: '',
+        message: '',
+    },
     notify: {
         label: '',
         isOpen: false,
@@ -19,7 +24,7 @@ initialState = {
         email: '',
         isOpen: false
     },
-    messageBadge: 0
+    messageBadge: 0,
 }
 
 const uxSlice = createSlice({
@@ -92,6 +97,11 @@ const uxSlice = createSlice({
         },
         toggleMessageBadge: (state, {payload}) => {
             state.messageBadge = payload.badge
+        },
+        setGlobalDialog: (state, { payload } ) => {
+            state.globalDialog.isOpen = payload.isOpen,
+            state.globalDialog.title = payload.title,
+            state.globalDialog.message = payload.message
         }
     }
 })
@@ -113,6 +123,7 @@ export const {
     closeNotify,
     emailCodeModal,
     closeAllToggle,
-    toggleMessageBadge
+    toggleMessageBadge,
+    setGlobalDialog
 } = uxSlice.actions;
 export default uxSlice.reducer

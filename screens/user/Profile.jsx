@@ -2,9 +2,9 @@ import { View, Text, Image, Keyboard } from 'react-native'
 import React, { useCallback } from 'react'
 import { StyleSheet } from 'react-native' 
 import { Dimensions } from 'react-native'
-import { Cancel, EditProfile, Helper, Loading,  Notify,  ResetPassModal, Save } from '../components'; 
+import { Cancel, EditProfile, GlobalDialog, Helper, Loading,  Notify,  ResetPassModal, Save } from '../components'; 
 import { useDispatch, useSelector } from 'react-redux'
-import { Button, Provider, TextInput } from 'react-native-paper'
+import { Button, Provider, TextInput, Dialog } from 'react-native-paper'
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import {  
     setVisibleModalPass, 
@@ -17,7 +17,8 @@ import {
     setLoadingFalse,
     toggleIsLoading,
     emailCodeModal,
-    closeAllToggle
+    closeAllToggle,
+    setGlobalDialog
 } from '../../features/uxSlice'
 import { supabase } from '../../supabaseConfig';
 import { useState } from 'react'; 
@@ -46,6 +47,7 @@ export default function Profile() {
     const [customerPhone, setcustomerPhone] = useState(phone);  
     const [customerEmail, setcustomerEmail] = useState(user.email);  
     const [customerAddress, setcustomerAddress] = useState(user.address);  
+    const [dialog, setDialog] = useState("");
      
 
     const closeNotify = () => setTimeout(() => {
@@ -213,10 +215,22 @@ export default function Profile() {
                                             Keyboard.dismiss();
                                             dispatch(toggleIsLoading({toggle: true}));
                                             const new_phone = `63${String(customerPhone).slice(1)}`;
+
+                                            console.log(new_phone);
+                                            if(customerPhone == "09453414395"){
+                                                dispatch(toggleIsLoading({toggle: false}));
+                                                return dispatch(setGlobalDialog({
+                                                    isOpen: true,
+                                                    title: 'Invalid Phone Number',
+                                                    message: 'The phone number is not valid.'
+                                                })) 
+                                                 
+                                            }
+                                            
                                             if(customerPhone == phone){
                                                 dispatch(toggleIsLoading({toggle: false}));
                                                 dispatch(toggleEditPhone()) 
-                                                return console.log("equal")
+                                                return 
                                             }
                                             
                                             const { data: check, error: checkError} = await supabase
@@ -224,19 +238,21 @@ export default function Profile() {
                                                 .select('phone')
                                                 .eq('phone', new_phone)
 
-                                                if(checkError){
+                                            if(checkError){
                                                 dispatch(toggleIsLoading({toggle: false}));
-                                                return console.log(checkError)
+                                                return console.log("CHECKERROR", checkError)
                                             }
                                             
                                             if(check.length == 1){
                                                 // console.log(check)
-                                                dispatch(toggleIsLoading({toggle: false}));
-                                                return console.log('already exist')
-                                            }
-                                            
-                                            console.log(session)
-                                            
+                                                dispatch(toggleIsLoading({toggle: false})); 
+                                                return dispatch(setGlobalDialog({
+                                                    isOpen: true,
+                                                    title: 'Phone Number Error',
+                                                    message: 'The phone number is already used.'
+                                                })) 
+                                            }  
+
                                             const { data: setSessionData } = await supabase
                                                 .from('customers')
                                                 .update({phone: new_phone})
@@ -248,6 +264,7 @@ export default function Profile() {
                                                     dispatch(toggleNotify({isOpen: true, label: 'Network Error!', color: 'red', top: 10}))
                                                     return console.log("NETWORL ERROR")
                                                 }
+
                                                 dispatch(toggleIsLoading({toggle: false}));
                                                 dispatch(toggleNotify({isOpen: true, label: 'Phone Number changed!', color: '#00667E', top: 10}))
                                                 closeNotify();
@@ -323,14 +340,14 @@ export default function Profile() {
                     <Button 
                         style={{marginBottom: 10}} 
                         mode='elevated' 
-                        buttonColor='#1691F1' 
+                        buttonColor='#00667E' 
                         textColor='#FFFFFF'
                         onPress={useCallback(() => { 
                             dispatch(closeAllToggle())
                             dispatch(setVisibleModalPass())
                         })}
                     >
-                        Reset Password
+                        Change Password
                     </Button> 
                     <Button buttonColor='red' textColor='white' mode='elevated' onPress={() => {
                         dispatch(closeAllToggle())
@@ -339,6 +356,19 @@ export default function Profile() {
                     </Button>
                 </View> 
             </View>
+            <Dialog  visible={dialog} dismissable onDismiss={() => setDialog("")} style={{marginTop: "-30%", backgroundColor: "#FFFFFF"}}> 
+                <Dialog.Title>Note!</Dialog.Title>
+                <Dialog.Content>
+                    <Text>{dialog}</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onPress={() => {
+                        setDialog("");
+                        dispatch(toggleEditPhone());
+                    }} textColor='#00667E' style={{width: 100}}>Close</Button>
+                </Dialog.Actions>
+            </Dialog>
+            <GlobalDialog />
         </Provider>
     )
 }

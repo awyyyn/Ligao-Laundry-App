@@ -5,6 +5,7 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { MessageContainer } from '../components';
 import { useRef } from 'react';
 import { useEffect } from 'react';
+import Entype from 'react-native-vector-icons/Entypo'
 import { FlatList } from 'react-native';
 import { supabase } from '../../supabaseConfig';
 import { useDispatch, useSelector } from 'react-redux';
@@ -37,9 +38,7 @@ export default function Message() {
                 // console.log("paylod", payload)
                 // console.log("paylod NEW", payload.new)
                 // console.log("paylod OLD", payload.old)
-                // console.log("paylod TABLE", payload.table)
-                console.log("sender", payload.new.sender_id)
-                console.log("reciever", payload.new.reciever_id)
+                // console.log("paylod TABLE", payload.table) 
                 if(payload.new.sender_id == session) {
                     updateUnread();
                     setData((prevArr) => [
@@ -65,47 +64,57 @@ export default function Message() {
             return console.log(error.message)
         }
     }
-     
+      
 
     return (
         <View onPress={() => Keyboard.dismiss()} >
             <View style={styles.container}>
-                <View style={styles.messagesContainer}> 
-                    <FlatList
-                        scrollEnabled
-                        contentContainerStyle={{flexDirection: 'column-reverse'}}
-                        inverted
-                        data={dataArr}
-                        renderItem={({item}) => {
-                        
-                            const date = new Date(item.created_at);
-                            const readable =  date.toLocaleString('en-us', { timeZone: 'Asia/Manila'});  
-                            
-                            return( 
-                                <View style={[{alignItems: item.name != null ? 'flex-end' : 'flex-start'}, styles.messageAlert]}>
-                                    <View  
-                                        onPress={() => {
-                                            console.log("ALERT")
-                                            setShow(!show)
-                                        }}
-                                        style={{
-                                            backgroundColor: '#00667E',  
-                                            borderRadius: 50, 
-                                            paddingHorizontal: 12, 
-                                            paddingVertical: 10
-                                        }
-                                    }>    
-                                        <Text style={{color: 'white', fontSize: 18}}>{item.message}</Text>
-                                    </View> 
-                                    <Text style={{fontSize: 10, color: 'gray', marginRight: 5}}>
-                                        {readable}
-                                    </Text> 
-                                </View>  
-                            )
-                        }} 
-                        keyExtractor={item => item.channel_id}
-                    />
-                </View>
+                {dataArr.length == 0 ? 
+                    <>
+                        <View style={{display: 'flex', alignItems: 'center', marginTop: '40%'}}>
+                            <Entype name="chat" size={200} color="#00667E" />
+                            <Text style={{color: 'gray'}}>Send a message if you have a question.</Text>
+                        </View>
+                    </> : 
+                    <>
+                        <View style={styles.messagesContainer}> 
+                            <FlatList
+                                scrollEnabled
+                                contentContainerStyle={{flexDirection: 'column-reverse'}}
+                                inverted
+                                data={dataArr}
+                                renderItem={({item}) => {
+                                
+                                    const date = new Date(item.created_at);
+                                    const readable =  date.toLocaleString('en-us', { timeZone: 'Asia/Manila'});  
+                                    
+                                    return( 
+                                        <View style={[{alignItems: item.name != null ? 'flex-end' : 'flex-start'}, styles.messageAlert]}>
+                                            <View  
+                                                onPress={() => {
+                                                    console.log("ALERT")
+                                                    setShow(!show)
+                                                }}
+                                                style={{
+                                                    backgroundColor: '#00667E',  
+                                                    borderRadius: 50, 
+                                                    paddingHorizontal: 12, 
+                                                    paddingVertical: 10
+                                                }
+                                            }>    
+                                                <Text style={{color: 'white', fontSize: 18, }}>{item.message}</Text>
+                                            </View> 
+                                            <Text style={{fontSize: 10, color: 'gray', marginRight: 5}}>
+                                                {readable}
+                                            </Text> 
+                                        </View>  
+                                    )
+                                }} 
+                                keyExtractor={item => item.channel_id}
+                            />
+                        </View>
+                    </>
+                }
                 <View style={styles.inputContainer}> 
                     <TextInput 
                         inputMode='text' 
@@ -167,6 +176,6 @@ const styles = StyleSheet.create({
     },
     messageAlert: {
         paddingHorizontal: 5, 
-        marginVertical: 8,
+        marginVertical: 8, 
     }
 })

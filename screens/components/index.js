@@ -13,3 +13,4 @@ export { default as Cancel } from './Cancel';
 export { default as Save } from './Save';
 export { default as MessageContainer } from './MessageContainer';
 export { default as StatusModal } from './StatusModal';
+export { default as GlobalDialog } from './GlobalDialog';

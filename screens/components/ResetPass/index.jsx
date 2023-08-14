@@ -4,7 +4,7 @@ import { Button, HelperText, Modal, Portal, Text, TextInput } from 'react-native
 import { useDispatch, useSelector } from 'react-redux'
 import { StyleSheet } from 'react-native'
 import { Formik } from 'formik'
-import { setHideModalPass } from '../../../features/uxSlice'
+import { setGlobalDialog, setHideModalPass } from '../../../features/uxSlice'
 import * as yup from 'yup';
 import { Keyboard } from 'react-native';
 import { supabase } from '../../../supabaseConfig';
@@ -24,7 +24,7 @@ export default function index() {
     const dispatch = useDispatch()
     const { resetPassModal } = useSelector(state => state.ux)
     console.log(resetPassModal)
-    const [isShow, setIsShow] = useState();
+    const [isLoading, setIsLoading] = useState(false);
     const handelClose = () => {
         Keyboard.dismiss();
         dispatch(setHideModalPass())
@@ -40,13 +40,30 @@ export default function index() {
                             pass2: ''
                         }}
                         onSubmit={async(values) => {
+                            Keyboard.dismiss();
+                            setIsLoading(true)
                             const { data, error } = await supabase.auth.updateUser({password: values.pass2})
                             if(error){
-                                alert(error.message)
-                                return console.log(error)
-                            }
-                            console.log(data)
+                                console.log('ERREERE')
+                                dispatch(setGlobalDialog({
+                                    isOpen: true,
+                                    title: 'Error',
+                                    message: `${error.message}`
+                                }))
+                                dispatch(setHideModalPass())
+                                
+                                return setIsLoading(false)
+                            } 
+                            
+                             dispatch(setGlobalDialog({
+                                isOpen: true,
+                                title: 'Success',
+                                message: 'Change Password Success.'
+                            })) 
+                            dispatch(setHideModalPass())
+                            setIsLoading(false)
                         }}
+
                         validationSchema={validationSchema}
                     >
                         {(({errors, values, handleChange, handleBlur, handleSubmit}) => (
@@ -96,6 +113,7 @@ export default function index() {
                                 <Button 
                                     onPress={handleSubmit}
                                     buttonColor='#00554D'
+                                    loading={isLoading}
                                     textColor='white'
                                     style={{
                                         borderRadius: 3,
@@ -103,7 +121,7 @@ export default function index() {
                                     }}
                                     mode='elevated'
                                 >
-                                    Change Password
+                                    Reset
                                 </Button>
                                 <Button 
                                     onPress={handelClose}
@@ -131,11 +149,13 @@ export default function index() {
 
 const styles = StyleSheet.create({
     container: {
-        width: Dimensions.get('screen').width - 30, 
+        width: Dimensions.get('screen').width - 50, 
         backgroundColor: 'white', 
         display: 'flex',
         justifyContent: 'center', 
         alignSelf: 'center',
-        padding: 30
+        padding: 30,
+        marginTop: "-30%",
+        borderRadius: 10
     }
 })

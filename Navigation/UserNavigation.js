@@ -37,7 +37,8 @@ export default function UserNavigation() {
     } 
 
     const getMessages = async () => {
-        const { data } = await supabase.from('message_channel').select().eq('sender_id', session);
+        const { data } = await supabase.from('message_channel').select().eq('sender_id', session).order('created_at', {ascending: true});
+        console.log(data)
         dispatch(setMessages(data));
     }
 
@@ -123,11 +124,11 @@ export default function UserNavigation() {
                 options={{ 
                     drawerActiveBackgroundColor: 'rgba(0,127,157,0.1)',
                     drawerLabel: ({focused}) => (
-                        <View style={styles.container}>     
+                        <View style={styles.container}  >     
                             <Surface elevation={10} style={{borderRadius: 100}}> 
                                 <Image
                                     source={require('../assets/icon.png')}
-                                    alt='Logoo'
+                                    alt='Logo'
                                     borderRadius={100}
                                     style={{
                                         width: 150,
