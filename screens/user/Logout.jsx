@@ -15,7 +15,7 @@ export default function Logout() {
     const navigation = useNavigation();
     const logout = async() => {
         dispatch(setSession(null)) 
-        await AsyncStorage.clear()
+        // await AsyncStorage.clear()
         await supabase.auth.signOut();
         navigation.navigate('signin')
     }

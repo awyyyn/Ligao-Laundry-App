@@ -43,7 +43,7 @@ export default function ForgotPassword() {
                             visible={!!err}
                             content={err}
                             dismissHandler={() => setErr('')}
-                            title="Email not found"
+                            title="Error 404"
                             action="continue"
                         />
                         <Text style={styles.heading1}>Reset Password</Text>
@@ -76,7 +76,7 @@ export default function ForgotPassword() {
                                     dispatch(setLoadingFalse())
                                     return console.log(error.message)
                                 } 
-                                isSent('Password Reset Link Sent!')
+                                isSent('Reset Password Link Sent')
                                 dispatch(setLoadingFalse())
                             }}
                         >
@@ -84,7 +84,7 @@ export default function ForgotPassword() {
                             <View style={styles.inputContaiter}>  
                                 <Dialog 
                                     visible={!!sent}
-                                    content={`Reset the password in link sent to your email ${values.email}`}
+                                    content={`Reset your password in the link sent to ${values.email}`}
                                     dismissHandler={() => {
                                         navigation.navigate('signin');
                                         isSent('')

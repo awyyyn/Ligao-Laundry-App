@@ -24,6 +24,7 @@ export default function HomeScreen() {
     
   const getMessages = async () => {
     const { data } = await supabase.from('message_channel').select().eq('sender_id', session)
+    console.log(data)
     dispatch(setMessages(data))
   }
 

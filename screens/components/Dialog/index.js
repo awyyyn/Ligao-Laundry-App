@@ -16,6 +16,7 @@ export default function index({
             <Dialog.Content>
             <Divider />
               <Text variant="bodyMedium" 
+                style={{marginTop: 20}} 
               >{content}</Text>
             </Dialog.Content>
             <Dialog.Actions>
@@ -25,11 +26,12 @@ export default function index({
                   buttonColor='rgba(0, 102, 126, 0.2)' 
                   textColor='#00667E'
                   style={{
-                    padding: 1,
+                    padding: 1,  
+                    width: '100%',
                   }}
                   
                 > 
-                <Text style={{fontSize: 15}}>
+                <Text style={{fontSize: 15, width: ''  }}>
                   {action}
                 </Text>
                 </Button>

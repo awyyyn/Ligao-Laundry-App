@@ -50,22 +50,21 @@ export default function SignupScreen({navigation}) {
         dispatch(setLoadingTrue())
         const { data: exist } = await supabase.from('customers').select('email').eq('email', values.email)
          
+        const phone = `+63${values.phone.slice(1)}`; 
         if(exist?.length !== 0){  
-            setSignupErr("Email address is already in use")
+            setSignupErr("Email address is already taken")
             dispatch(setLoadingFalse())
             return console.log('email: ')
         } 
+ 
 
-        const phone = `+63${values.phone.slice(1)}`; 
-        const { data, error } = await supabase.auth.signUp({
-            // phone: '+639453414392',
-            // password: 'password'
+        const { data, error } = await supabase.auth.signUp({ 
             phone,
             password: values.reType,  
         }); 
 
         if(error) { 
-            setSignupErr('Phone number is already use')  
+            setSignupErr('Phone number is already taken')  
             dispatch(setLoadingFalse())
             return console.log('phone: ', error.message)
         }
@@ -98,7 +97,8 @@ export default function SignupScreen({navigation}) {
         /* SET STATE SESSION */
         dispatch(setSession(data?.session?.user?.id)) 
         dispatch(setUser(setData));
-        navigation.replace('user', { screen: 'home'})
+        navigation.replace('user', { screen: 'home'});
+
         dispatch(setLoadingFalse());
     }
 
