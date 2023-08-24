@@ -119,6 +119,15 @@ export default function ForgotPassword() {
                                 >
                                     Reset Password
                                 </Button>
+                                <Button 
+                                    mode='text'
+                                    // buttonColor='#00667E'
+                                    textColor='#00667E'   
+                                    style={{marginTop: 20, borderRadius: 5}}
+                                    onPress={() => navigation.navigate('signin')}
+                                >
+                                    Sign in
+                                </Button>
                             </View>
                         )} 
                         </Formik>

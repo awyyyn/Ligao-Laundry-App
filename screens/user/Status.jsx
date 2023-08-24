@@ -1,7 +1,6 @@
-import { TouchableOpacity, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { TouchableOpacity, ScrollView, StyleSheet, Text, View, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import globalStyle from '../styles/auth-styles'
-import { Image } from 'react-native'; 
+import globalStyle from '../styles/auth-styles' 
 import { ActivityIndicator, Button, FAB, IconButton, Portal, Provider, Surface } from 'react-native-paper';
 import { Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -46,13 +45,16 @@ export default function Status() {
     // RENDER THIS IF THERE IS NO LAUNDRY TO CHECK
     if(laundriesData?.length == 0) {
         return(
-            <View style={globalStyle.container} >
-                <Surface elevation={2} style={styles.imgContainer}>
-                    <Image  
-                        source={require('../../assets/empty.jpg')}  
-                        style={{ width: 200, height: 200 }}
+            <View style={{alignItems: 'center', marginTop: '30%'}} >
+                {/* <Surface elevation={2} style={styles.imgContainer}>  */}
+                    <Image 
+                        source={{uri: "https://cdni.iconscout.com/illustration/premium/thumb/no-data-found-8867280-7265556.png"}} 
+                        style={{
+                            width: '100%', 
+                            height: 300
+                        }} 
                     />
-                </Surface> 
+                {/* </Surface>  */}
                 <Text style={styles.text}>
                     No laundry to check.
                 </Text>
@@ -138,7 +140,8 @@ const styles = StyleSheet.create({
         zIndex: 99, 
     },   
     text: { 
-        fontSize: 22
+        fontSize: 22,
+        color: '#00667E88'
     },
     imgContainer:{
         borderRadius: 20, 

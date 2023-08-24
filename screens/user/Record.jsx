@@ -1,10 +1,10 @@
-import { Dimensions, ScrollView, StyleSheet, View } from 'react-native'
-import { ActivityIndicator, Text } from 'react-native-paper'
+import { Dimensions, ScrollView, StyleSheet, View, Image } from 'react-native'
+import { ActivityIndicator, Text,  } from 'react-native-paper'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import userStyles from '../styles/user-styles';
 import { supabase } from '../../supabaseConfig';
-import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux'; 
 
 export default function Record() { 
   const { session, user, messages } = useSelector(state => state.user)
@@ -34,7 +34,20 @@ export default function Record() {
   return (
     <ScrollView style={{paddingVertical: 10, marginHorizontal: 20, marginBottom: 10}}>
       {
-        data && data.map((data, i) => (
+        data.length < 1 ? <>
+          <View style={{width: '100%', alignItems: 'center', marginTop: '30%'}}>
+            <Image 
+              source={{uri: "https://cdni.iconscout.com/illustration/premium/thumb/no-data-found-8867280-7265556.png"}} 
+              style={{
+                width: '100%', 
+                height: 300
+              }} 
+            />
+            <Image />
+            <Text style={{fontSize: 23, color: '#00667E88'}}>No Records Found</Text>
+          </View>
+        </> :
+        data.map((data, i) => (
         <View key={i} style={[userStyles.row, styles.record]}>
           <View style={[styles.leftRecord, {rowGap: 2}]}>
             <Text style={styles.recordTitle}>{data.service_type}</Text>

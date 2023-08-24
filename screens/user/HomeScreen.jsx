@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
 import { Portal, Provider, Text } from 'react-native-paper';  
 import { Card, Loading, Modal } from '../components' 
 import userStyles from '../styles/user-styles'; 
@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getItemAsync, setItemAsync } from 'expo-secure-store';
 import { useCallback } from 'react'; 
+import { Alert } from 'react-native';
 
 export default function HomeScreen() {
   const { session } = useSelector(state => state.user);  
@@ -20,11 +21,39 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  // console.log('homescreen check session', session); 
+  // console.log('homescreen check session', session);
+  
+  useEffect(() => {
+
+    const backAction = () => {
+      Alert.alert('Hold on!', 'Are you sure you want to exit?', [
+        {
+          text: 'Cancel',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        {text: 'YES', onPress: () => BackHandler.exitApp()},
+      ]);
+      return true;
+    };
+    
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+
+  }, [])
     
   const getMessages = async () => {
     const { data } = await supabase.from('message_channel').select().eq('sender_id', session)
-    console.log(data)
+    const { data: session } = await supabase.auth.getSession()
+    /* SET TOKENS IN ASYNC STORAGE */
+    await AsyncStorage.setItem('access_token', session.session.access_token)
+    await AsyncStorage.setItem('refresh_token', session.session.refresh_token)
+    
+    await AsyncStorage.setItem('@session_key', session.session.user.id); 
     dispatch(setMessages(data))
   }
 
@@ -40,6 +69,7 @@ export default function HomeScreen() {
   }, [])
  
  
+
   return ( 
       <Provider> 
         <Portal>

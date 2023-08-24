@@ -27,6 +27,7 @@ import { useEffect } from 'react';
 import { useDrawerStatus } from '@react-navigation/drawer';
 import LoadingV2 from '../components/LoadingScreen/loadingV2';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 export default function Profile() { 
     
@@ -454,23 +455,20 @@ export default function Profile() {
                                 alert(delErr.message)
                                 return
                             }
-
-                            alert("Deleting your Account...");
-                            setTimeout(async() => {
-                                await supabase.from("customers").delete().eq('user_id', session)
-                                dispatch(setSession(null)) 
-                                dispatch(removeUser())
-                                await AsyncStorage.clear()
-                                await supabase.auth.signOut();
-                                navigation.dispatch(
-                                    StackActions.replace('signin')
-                                )
-                            }, 3000)
-                                // const { data, error } = await supabase.
-                            //     '715ed5db-f090-4b8c-a067-640ecee36aa0'
-                            // );
-
-                            // console.log(data)
+                            Alert.alert(
+                                'Removing Account',
+                                'Deleting account and personal information.,',
+                                [
+                                    {
+                                        text: 'Done',  
+                                    }
+                                ],
+                                { cancelable: deleting ? false : true }
+                            );
+                              
+                            await supabase.from("customers").delete().eq('user_id', session)  
+                            navigation. navigate('logout')
+                            
                         }}
                         loading={deleting}
                     >

@@ -29,19 +29,20 @@ export default function VerifytOTPScreen({ route, navigation }) {
         dispatch(setLoadingTrue()) 
 
         setTimeout(async() => {        
+
             dispatch(setLoadingFalse())
+
             /* SET TOKENS IN ASYNC STORAGE */
             await AsyncStorage.setItem('access_token', data.session.access_token)
-            await AsyncStorage.setItem('refresh_token', data.session.refresh_token)
-            
-            await AsyncStorage.setItem('@session_key', data.session.user.id);
-    
+            await AsyncStorage.setItem('refresh_token', data.session.refresh_token) 
+            await AsyncStorage.setItem('@session_key', data.session.user.id); 
             
             /* SET STATE SESSION */
             dispatch(setSession(data?.session?.user?.id)) 
             dispatch(setUser(setData)); 
             navigation.replace('user', { screen: 'home'}); 
             dispatch(setLoadingFalse());
+            
         }, 1000)
     }
 

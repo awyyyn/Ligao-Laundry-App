@@ -1,7 +1,7 @@
  
 import { Portal, Provider, Text } from 'react-native-paper' 
 import globalStyles from '../styles/auth-styles'
-import { View, StyleSheet, Image, Keyboard, TouchableWithoutFeedback } from 'react-native'  
+import { View, StyleSheet, Image, Keyboard, TouchableWithoutFeedback, BackHandler, Alert } from 'react-native'  
 import { Formik } from 'formik' 
 import * as yup from 'yup';
 import 'yup-phone';
@@ -37,12 +37,37 @@ export default function SigninScreen() {
     const dispatch = useDispatch();
 
     /* IF THERE IS A LOGIN USER REDIRECT TO USER SCREEN */  
-    useEffect(() => { 
-        if(session) return navigation.replace('user') 
+    // useEffect(() => { 
+    //     if(session) return navigation.replace('user') 
+    // }, [])
+
+    useEffect(() => {
+
+        const backAction = () => {
+          Alert.alert('Hold on!', 'Are you sure you want to exit?', [
+            {
+              text: 'Cancel',
+              onPress: () => {},
+              style: 'cancel',
+            },
+            {text: 'YES', onPress: () => BackHandler.exitApp()},
+          ]);
+          return true;
+        };
+        
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction,
+        );
+    
+        return () => backHandler.remove();
+    
     }, [])
+
 
     /* SIGN IN FUNCTIONALITY  */
     const handleSignIn = async(values)  => {
+        setEyeIcon(false)
         Keyboard.dismiss();
         dispatch(setLoadingTrue());
         const phone = `+63${values.phone.slice(1)}`;
@@ -88,8 +113,8 @@ export default function SigninScreen() {
         /* SET USER STATE */
         const { data: user_data } = await supabase.from('customers').select('*').eq('user_id', data?.session?.user?.id);
         dispatch(setUser(user_data))
-        dispatch(setLoadingFalse())
         navigation.replace('user', { screen: 'home'}) 
+        dispatch(setLoadingFalse())
     }
 
     

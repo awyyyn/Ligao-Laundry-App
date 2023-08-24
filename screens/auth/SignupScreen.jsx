@@ -3,10 +3,10 @@ import globalStyles from '../styles/auth-styles'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Formik } from 'formik'
 import { Text, Provider } from 'react-native-paper'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import * as yup from "yup";
 import { Button, Loading, Dialog, Input } from '../components';
-import { supabase } from '../../supabaseConfig' 
+import { supabase, supabaseAdmin } from '../../supabaseConfig' 
 import { useDispatch, useSelector } from 'react-redux'
 import { setLoadingFalse, setLoadingTrue } from '../../features/uxSlice'
 import { setSession, setUser } from '../../features/userSlice';
@@ -47,13 +47,14 @@ export default function SignupScreen({navigation}) {
     const dispatch = useDispatch(); 
     const [signupErr, setSignupErr] = useState('');
     const [eyeIcon, setEyeIcon] = useState(false);  
-    const signup = async(values) => {
+    const signup = useCallback(async(values) => {
         dispatch(setLoadingTrue())
-        const { data: exist } = await supabase.from('customers').select('email').eq('email', values.email).single()
+        const { data: exist } = await supabase.from('customers').select('email').eq('email', values.email)
         console.log(exist)
         const phone = `+63${values.phone.slice(1)}`; 
+
         if(values.email !== ""){
-            if(exist.email == values.email){  
+            if(exist?.length > 0){  
                 setSignupErr("Email address is already taken")
                 dispatch(setLoadingFalse())
                 return console.log('email: ')
@@ -61,52 +62,72 @@ export default function SignupScreen({navigation}) {
         }
  
 
-        const { data, error } = await supabase.auth.signUp({ 
+        // const { data, error } = await supabase.auth.signUp({ 
+        //     phone,
+        //     password: values.reType,  
+        // }); 
+
+        const { data, error } = await supabaseAdmin.auth.admin.createUser({
             phone,
-            password: values.reType,  
-        }); 
+            password: values.reType,
+            email: values?.email,
+            email_confirm: true,
+        })
+ 
 
         if(error) { 
-            setSignupErr('Phone number is already taken')  
+            setSignupErr(error.message)  
             dispatch(setLoadingFalse())
             return console.log('phone: ', error.message)
         }
 
-        if(values.email !== ''){
-            const {error: eError, data: eData} = await supabase.auth.updateUser({
-                email: values.email
-            }); 
-            console.log(eData)
+        const { data: signinData, error: signinErr } = await supabase.auth.signUp({ 
+            phone,
+            password: values.reType,  
+        }); 
+        
+        if(signinErr) { 
+            setSignupErr(signinErr.message)  
             dispatch(setLoadingFalse())
-            if(eError) return console.log(eError.message)
-        }   
+            return console.log(signinErr.message)
+        } 
 
-        const { data: setData } = await supabase.from('customers')
-            .insert({
-                user_id: data.user.id,
-                address: values.address,
-                name: values.name,
-                phone: phone,
-                email: values.email
-            }).select()
+        console.log(signinData)
+
+        // if(values.email !== ""){
             
-        /* SET TOKENS IN ASYNC STORAGE */
-        await AsyncStorage.setItem('access_token', data.session.access_token)
-        await AsyncStorage.setItem('refresh_token', data.session.refresh_token)
-        
-        await AsyncStorage.setItem('@session_key', data.session.user.id);
+        //     const {error: eError, data: eData} = await supabaseAdmin.auth.admin.updateUserById((
+        //         data.session.user.id,
+        //         {
+        //             email: values.email
+        //         }
+        //     )); 
+        //     console.log("UPDATE EMAIL", eData)
+        //     dispatch(setLoadingFalse())
+        //     if(eError) return console.log("asd", eError.message)
+        // }   
+
+        // const { data: setData } = await supabase.from('customers')
+        //     .insert({
+        //         user_id: data.user.id,
+        //         address: values.address,
+        //         name: values.name,
+        //         phone: phone,
+        //         email: values.email
+        //     }).select()
+            
 
         
-        /* SET STATE SESSION */
-        dispatch(setSession(data?.session?.user?.id)) 
-        dispatch(setUser(setData));
-        
-        dispatch(setLoadingFalse());
-        
-        navigation.dispatch(
-            StackActions.replace('user', { screen: 'home'})
-        ) 
-    }
+        // /* SET STATE SESSION */
+        // dispatch(setSession(data?.session?.user?.id)) 
+        // dispatch(setUser(setData)); 
+        // navigation.dispatch(
+        //     StackActions.replace('user', { screen: 'home'})
+        // );
+
+ 
+
+    }, [])
 
 
 

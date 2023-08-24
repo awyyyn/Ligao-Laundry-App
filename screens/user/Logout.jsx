@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image, Alert, BackHandler } from 'react-native'
 import { StackActions } from '@react-navigation/native'
 import React, { useEffect } from 'react'
 import { Loading } from '../components'
@@ -16,6 +16,27 @@ export default function Logout() {
     const dispatch = useDispatch() 
     console.log('asdasdasd')
     const navigation = useNavigation()
+
+    
+    useEffect(() => {
+
+        const backAction = () => {
+          Alert.alert('Hold on!', 'Are you sure you want to exit?', [
+            {
+              text: '', 
+            }, 
+          ]);
+          return false;
+        };
+        
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction,
+        );
+    
+        return () => backHandler.remove;
+    
+    }, [])
 
     const logout = async() => {
         const { data } = await supabase.auth.getSession();
