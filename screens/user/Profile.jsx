@@ -45,7 +45,7 @@ export default function Profile() {
     // console.log(typeof phone) 
     const { isLoading, isLoadingUi, editName, editEmail, editPhone, editAddress } = useSelector(state => state.ux)
     const [customerName, setcustomerName] = useState(user.name); 
-    const phone = `0${String(user.phone).slice(2)}`  
+    const phone = `0${String(user.phone).slice(3)}`  
     const [customerPhone, setcustomerPhone] = useState(phone);  
     const [customerEmail, setcustomerEmail] = useState(user.email);  
     const [customerAddress, setcustomerAddress] = useState(user.address);  
@@ -378,7 +378,7 @@ export default function Profile() {
             <Dialog  visible={deleteAcc} dismissable onDismiss={() => setDialog("")} style={{marginTop: "-30%", backgroundColor: "#FFFFFF", borderRadius: 5}}> 
                 <Dialog.Title>Danger</Dialog.Title>
                 <Dialog.Content style={{gap:10}}>
-                    <Text>Do you realy want to delete your account ?</Text>
+                    <Text>Do you really want to delete your account ?</Text>
                     <TextInput 
                         value={delPass}
                         onChangeText={(t) => {
@@ -455,6 +455,9 @@ export default function Profile() {
                                 alert(delErr.message)
                                 return
                             }
+                            
+                            await supabase.from("customers").delete().eq('user_id', session)  ;
+
                             Alert.alert(
                                 'Removing Account',
                                 'Deleting account and personal information.,',
@@ -466,8 +469,7 @@ export default function Profile() {
                                 { cancelable: deleting ? false : true }
                             );
                               
-                            await supabase.from("customers").delete().eq('user_id', session)  
-                            navigation. navigate('logout')
+                            navigation. navigate('logout');
                             
                         }}
                         loading={deleting}

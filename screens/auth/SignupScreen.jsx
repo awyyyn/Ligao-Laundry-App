@@ -47,8 +47,19 @@ export default function SignupScreen({navigation}) {
     const dispatch = useDispatch(); 
     const [signupErr, setSignupErr] = useState('');
     const [eyeIcon, setEyeIcon] = useState(false);  
+
+
+
     const signup = useCallback(async(values) => {
+            
         dispatch(setLoadingTrue())
+        // if(values.phone.slice())
+        if(values.phone.slice(0, 2) !== "09" || String(values.phone).length !== 11){
+            alert('Invalid Phone Number')
+            dispatch(setLoadingFalse())
+            return
+        }
+        
         const { data: exist } = await supabase.from('customers').select('email').eq('email', values.email)
         console.log(exist)
         const phone = `+63${values.phone.slice(1)}`; 
@@ -60,13 +71,7 @@ export default function SignupScreen({navigation}) {
                 return console.log('email: ')
             } 
         }
- 
-
-        // const { data, error } = await supabase.auth.signUp({ 
-        //     phone,
-        //     password: values.reType,  
-        // }); 
-
+  
         const { data, error } = await supabaseAdmin.auth.admin.createUser({
             phone,
             password: values.reType,
@@ -91,42 +96,26 @@ export default function SignupScreen({navigation}) {
             dispatch(setLoadingFalse())
             return console.log(signinErr.message)
         } 
+ 
 
-        console.log(signinData)
-
-        // if(values.email !== ""){
-            
-        //     const {error: eError, data: eData} = await supabaseAdmin.auth.admin.updateUserById((
-        //         data.session.user.id,
-        //         {
-        //             email: values.email
-        //         }
-        //     )); 
-        //     console.log("UPDATE EMAIL", eData)
-        //     dispatch(setLoadingFalse())
-        //     if(eError) return console.log("asd", eError.message)
-        // }   
-
-        // const { data: setData } = await supabase.from('customers')
-        //     .insert({
-        //         user_id: data.user.id,
-        //         address: values.address,
-        //         name: values.name,
-        //         phone: phone,
-        //         email: values.email
-        //     }).select()
+        const { data: setData } = await supabase.from('customers')
+            .insert({
+                user_id: data.user.id,
+                address: values.address,
+                name: values.name,
+                phone: phone,
+                email: values.email
+            }).select()
             
 
         
-        // /* SET STATE SESSION */
-        // dispatch(setSession(data?.session?.user?.id)) 
-        // dispatch(setUser(setData)); 
-        // navigation.dispatch(
-        //     StackActions.replace('user', { screen: 'home'})
-        // );
-
- 
-
+        /* SET STATE SESSION */
+        dispatch(setSession(signinData?.session?.user?.id)) 
+        dispatch(setUser(setData)); 
+        navigation.dispatch(
+            StackActions.replace('user', { screen: 'home'})
+        );
+  
     }, [])
 
 

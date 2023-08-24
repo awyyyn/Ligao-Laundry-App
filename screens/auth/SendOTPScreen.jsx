@@ -54,7 +54,7 @@ export default function SendOTPScreen() {
                 dispatch(toggleNotify({isOpen: true, label: 'Email is not registered!', color: 'red', top: 50}))
                 console.log("not allowed")
             }else{
-                dispatch(toggleNotify({isOpen: true, label: 'Network Error!', color: 'red', top: 50}))
+                dispatch(toggleNotify({isOpen: true, label: error.message, color: 'red', top: 50}))
                 console.log("Network Error")
             }
             dispatch(setLoadingFalse())
@@ -63,9 +63,7 @@ export default function SendOTPScreen() {
             }, 5000)
             return console.log(error)
         }
-        dispatch(closeNotify())
-        console.log(data)
-        console.log('sent')
+        dispatch(closeNotify()) 
         dispatch(setLoadingFalse())
         navigation.navigate('verifyotp', {
             email: val.email

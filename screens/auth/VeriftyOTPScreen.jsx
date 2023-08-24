@@ -7,6 +7,7 @@ import { supabase } from '../../supabaseConfig'
 import { useDispatch, useSelector } from 'react-redux'
 import { setLoadingFalse, setLoadingTrue } from '../../features/uxSlice'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { setSession, setUser } from '../../features/userSlice'
  
 export default function VerifytOTPScreen({ route, navigation }) {
     const { email } = route.params;
@@ -27,6 +28,7 @@ export default function VerifytOTPScreen({ route, navigation }) {
             return console.log(error)
         }
         dispatch(setLoadingTrue()) 
+        const { data: userData } = await supabase.from('customers').select().eq('email', email) 
 
         setTimeout(async() => {        
 
@@ -39,10 +41,10 @@ export default function VerifytOTPScreen({ route, navigation }) {
             
             /* SET STATE SESSION */
             dispatch(setSession(data?.session?.user?.id)) 
-            dispatch(setUser(setData)); 
+            dispatch(setUser(userData)); 
             navigation.replace('user', { screen: 'home'}); 
             dispatch(setLoadingFalse());
-            
+
         }, 1000)
     }
 
@@ -102,6 +104,14 @@ export default function VerifytOTPScreen({ route, navigation }) {
                             mode="elevated"
                             textColor="white"
                             bgColor="#00667E"
+                        /> 
+                        <Button 
+                            title="Sign in" 
+                            styles={{marginTop: 20}}
+                            handlePress={() => navigation.navigate('signin')}
+                            mode="text"
+                            textColor="#00667E"
+                            bgColor="white"
                         />
                     </View>
                 </View>

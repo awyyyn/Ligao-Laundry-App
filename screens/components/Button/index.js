@@ -7,12 +7,14 @@ export default function index({
     mode,
     handlePress,
     bgColor,
+    styles,
     textColor, 
     disable
 }) {
 
     return (
-        <Button
+        <Button 
+            style={styles}
             mode={mode}
             onPress={handlePress} 
             buttonColor={ bgColor}
