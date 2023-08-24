@@ -76,7 +76,7 @@ export default function ForgotPassword() {
                                     dispatch(setLoadingFalse())
                                     return console.log(error.message)
                                 } 
-                                isSent('Reset Password Link Sent')
+                                isSent('Password Link Sent')
                                 dispatch(setLoadingFalse())
                             }}
                         >
@@ -138,11 +138,12 @@ const styles = StyleSheet.create({
         width: '93%', 
     },  
     heading1: { 
-        fontSize: 40,
+        fontSize: 35,
         color: "#00667E"
     },
     paragraph1: {
         fontSize: 15,
+        // textAlign: 'left',
         color: "grey",
         marginBottom: 15
     },

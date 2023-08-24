@@ -80,6 +80,7 @@ export default function AuthNavigation() {
         headerShown: false,  
       }}
       initialRouteName={initialRouteName} 
+      
     >
       {
           stacks.map((stack) => ( 
@@ -90,6 +91,7 @@ export default function AuthNavigation() {
             options={{
               animation: stack.animation,    
             }}
+            
           />
         ))
       }

@@ -98,10 +98,11 @@ export default function Message() {
                                                 style={{
                                                     backgroundColor: '#00667E',  
                                                     borderRadius: 50, 
-                                                    paddingHorizontal: 12, 
-                                                    paddingVertical: 10
-                                                }
-                                            }>    
+                                                    paddingHorizontal: 20, 
+                                                    paddingVertical: 12,
+                                                    maxWidth: '75%'
+                                                }}
+                                            >    
                                                 <Text style={{color: 'white', fontSize: 18, }}>{item.message}</Text>
                                             </View> 
                                             <Text style={{fontSize: 10, color: 'gray', marginRight: 5}}>
@@ -176,6 +177,6 @@ const styles = StyleSheet.create({
     },
     messageAlert: {
         paddingHorizontal: 5, 
-        marginVertical: 8, 
+        marginVertical: 8,  
     }
 })

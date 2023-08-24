@@ -6,6 +6,7 @@ import { Button, Dialog, Loading } from '../components'
 import { supabase } from '../../supabaseConfig'
 import { useDispatch, useSelector } from 'react-redux'
 import { setLoadingFalse, setLoadingTrue } from '../../features/uxSlice'
+import AsyncStorage from '@react-native-async-storage/async-storage'
  
 export default function VerifytOTPScreen({ route, navigation }) {
     const { email } = route.params;
@@ -25,11 +26,23 @@ export default function VerifytOTPScreen({ route, navigation }) {
             setErr(error.message)
             return console.log(error)
         }
-        dispatch(setLoadingTrue())
-        setTimeout(() => {        
+        dispatch(setLoadingTrue()) 
+
+        setTimeout(async() => {        
             dispatch(setLoadingFalse())
-            navigation.navigate('user')
-        }, 3000)
+            /* SET TOKENS IN ASYNC STORAGE */
+            await AsyncStorage.setItem('access_token', data.session.access_token)
+            await AsyncStorage.setItem('refresh_token', data.session.refresh_token)
+            
+            await AsyncStorage.setItem('@session_key', data.session.user.id);
+    
+            
+            /* SET STATE SESSION */
+            dispatch(setSession(data?.session?.user?.id)) 
+            dispatch(setUser(setData)); 
+            navigation.replace('user', { screen: 'home'}); 
+            dispatch(setLoadingFalse());
+        }, 1000)
     }
 
     return ( 
@@ -68,8 +81,8 @@ export default function VerifytOTPScreen({ route, navigation }) {
                             maxLength={6}
                             keyboardType="number-pad"
                             contentStyle={{ 
-                                color: 'red',
-                                letterSpacing: 30,
+                                color: '#00667E',
+                                letterSpacing: 20,
                                 fontSize: 27
                             }}
                             onSubmitEditing={verifyOTP}

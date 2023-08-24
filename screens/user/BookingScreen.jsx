@@ -201,7 +201,7 @@ export default function BookScreen() {
                           setGetTime(value)
                         }}
                       > 
-                        <Picker.Item  value='Select Time' label='Select Time' />
+                        <Picker.Item color='#00667E'   value='Select Time' label='Select Time' />
                         {time.map(timee => (
                           <Picker.Item key={timee.value} value={timee.value} label={timee.label} enabled={!timee.disabled} 
                             style={{  

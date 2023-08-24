@@ -14,6 +14,7 @@ import { DrawerActions, useNavigation } from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { useState, useEffect } from 'react';
+import { useCallback } from 'react';
 
 
 const Drawer = createDrawerNavigator();
@@ -24,28 +25,28 @@ export default function UserNavigation() {
     const { session, unReadNotif, unreadMessage } = useSelector(state => state.user)
     const { isLoading } = useSelector((state) => state.ux);  
 
-    const getUnreadNotification = async() => {
+    const getUnreadNotification = useCallback(async() => {
         const { data } = await supabase.from('notification').select().match({recipent_id: session, is_read: false })
         dispatch(setUnReadNotif(data.length));
         const { data: notification } = await supabase.from('notification').select().eq('recipent_id', session)
         dispatch(setNotificaitons(notification))
-    }
+    }, [])
 
-    const getLaundry = async() => {
+    const getLaundry = useCallback(async() => {
         const { data, error } = await supabase.from('laundries_table').select().eq('user_id', session); 
         dispatch(setLaundries(data))
-    } 
+    }, [])
 
-    const getMessages = async () => {
+    const getMessages = useCallback(async () => {
         const { data } = await supabase.from('message_channel').select().eq('sender_id', session).order('created_at', {ascending: true});
         console.log(data)
         dispatch(setMessages(data));
-    }
+    }, [])
 
-    const getUnreadMessages = async() => { 
+    const getUnreadMessages = useCallback(async() => { 
         const { data } = await supabase.from('message_channel').select().match({sender_id: session, is_read_by_customer: false });
         dispatch(setUnreadMessages(data.length));
-    }
+    }, [])
 
     useEffect(() => { 
         getMessages();
@@ -72,6 +73,7 @@ export default function UserNavigation() {
 
     return (
         <Drawer.Navigator    
+            detachInactiveScreens
             initialRouteName='home'
             screenOptions={{
                 drawerActiveBackgroundColor: "rgba(0,127,157,0.1)",

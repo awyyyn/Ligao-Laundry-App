@@ -50,15 +50,16 @@ export default function index() {
                                     title: 'Error',
                                     message: `${error.message}`
                                 }))
+                                setIsLoading(false)
                                 dispatch(setHideModalPass())
-                                
-                                return setIsLoading(false)
+                                console.log(error)
+                                return 
                             } 
                             
                              dispatch(setGlobalDialog({
                                 isOpen: true,
-                                title: 'Success',
-                                message: 'Change Password Success.'
+                                title: 'Reset Password',
+                                message: 'Password changed successfully.'
                             })) 
                             dispatch(setHideModalPass())
                             setIsLoading(false)

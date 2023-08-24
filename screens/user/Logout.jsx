@@ -1,28 +1,41 @@
 import { View, Text, StyleSheet, Image } from 'react-native'
+import { StackActions } from '@react-navigation/native'
 import React, { useEffect } from 'react'
 import { Loading } from '../components'
 import { supabase } from '../../supabaseConfig.js'
 import { useNavigation } from '@react-navigation/native'
 import { useDispatch } from 'react-redux'
-import { setSession } from '../../features/userSlice'
+import { removeUser, setSession, setUser } from '../../features/userSlice'
 import { setLoadingFalse } from '../../features/uxSlice'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Dimensions } from 'react-native'
 
 export default function Logout() {
-    const dispatch = useDispatch()
-    const navigation = useNavigation();
+
+    const dispatch = useDispatch() 
+    console.log('asdasdasd')
+    const navigation = useNavigation()
+
     const logout = async() => {
+        const { data } = await supabase.auth.getSession();
+        if(data.session == null) { 
+            navigation.dispatch(
+                StackActions.replace('signin')
+            )
+        }
         dispatch(setSession(null)) 
-        // await AsyncStorage.clear()
+        dispatch(removeUser())
+        await AsyncStorage.clear()
         await supabase.auth.signOut();
-        navigation.navigate('signin')
+        navigation.dispatch(
+            StackActions.replace('signin')
+        )
     }
 
     setTimeout(() => {
         logout();
-    }, 1000);
+    }, 100);
     
     return (
         // <Loading />
@@ -43,8 +56,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        height: Dimensions.get('screen').height,
-        width: Dimensions.get('screen').width
+        height: Dimensions.get('window').height,
+        width: Dimensions.get('window').width
     },
     image: {
         position: 'absolute',

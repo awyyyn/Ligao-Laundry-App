@@ -4,8 +4,8 @@ import { StyleSheet } from 'react-native'
 import { Dimensions } from 'react-native'
 import { Cancel, EditProfile, GlobalDialog, Helper, Loading,  Notify,  ResetPassModal, Save } from '../components'; 
 import { useDispatch, useSelector } from 'react-redux'
-import { Button, Provider, TextInput, Dialog } from 'react-native-paper'
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { Button, Provider, TextInput, Dialog, HelperText } from 'react-native-paper'
+import { DrawerActions, StackActions, useNavigation } from '@react-navigation/native';
 import {  
     setVisibleModalPass, 
     toggleEditEmail, 
@@ -20,12 +20,13 @@ import {
     closeAllToggle,
     setGlobalDialog
 } from '../../features/uxSlice'
-import { supabase } from '../../supabaseConfig';
+import { supabase, supabaseAdmin } from '../../supabaseConfig';
 import { useState } from 'react'; 
-import { setUser, setSession } from '../../features/userSlice';
+import { setUser, setSession, removeUser } from '../../features/userSlice';
 import { useEffect } from 'react';
 import { useDrawerStatus } from '@react-navigation/drawer';
 import LoadingV2 from '../components/LoadingScreen/loadingV2';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Profile() { 
     
@@ -48,7 +49,10 @@ export default function Profile() {
     const [customerEmail, setcustomerEmail] = useState(user.email);  
     const [customerAddress, setcustomerAddress] = useState(user.address);  
     const [dialog, setDialog] = useState("");
-     
+    const [deleteAcc, setDelAcc] = useState(false);
+    const [delPass, setDelPass] = useState("");
+    const [delErr, setDelErr] = useState('');
+    const [deleting, setDeleting] = useState(false) 
 
     const closeNotify = () => setTimeout(() => {
         dispatch(toggleNotify({isOpen: false, label: '', color: ''}))
@@ -351,6 +355,7 @@ export default function Profile() {
                     </Button> 
                     <Button buttonColor='red' textColor='white' mode='elevated' onPress={() => {
                         dispatch(closeAllToggle())
+                        setDelAcc(true)
                     }}>
                         Delete
                     </Button>
@@ -366,6 +371,111 @@ export default function Profile() {
                         setDialog("");
                         dispatch(toggleEditPhone());
                     }} textColor='#00667E' style={{width: 100}}>Close</Button>
+                </Dialog.Actions>
+            </Dialog>
+            
+            <Dialog  visible={deleteAcc} dismissable onDismiss={() => setDialog("")} style={{marginTop: "-30%", backgroundColor: "#FFFFFF", borderRadius: 5}}> 
+                <Dialog.Title>Danger</Dialog.Title>
+                <Dialog.Content style={{gap:10}}>
+                    <Text>Do you realy want to delete your account ?</Text>
+                    <TextInput 
+                        value={delPass}
+                        onChangeText={(t) => {
+                            setDelPass(t)
+                            if(t == ""){
+                                setDelErr("Please enter your password")
+                            }else{
+                                setDelErr("")
+                            }
+                        }}
+                        disabled={deleting}
+                        mode='outlined'
+                        secureTextEntry
+                        placeholder='Password' 
+                        
+                    />
+                    {delErr && 
+                        <HelperText visible={delErr} type='error'>
+                            {delErr}
+                        </HelperText>
+                    }
+                    
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button 
+                        onPress={() => {
+                            setDelErr("")
+                            setDelPass("")
+                            setDelAcc(false)
+                        }}
+                        contentStyle={styles.actions}
+                        style={{borderRadius: 2}}
+                        textColor='white'    
+                        buttonColor='#00667E'
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        contentStyle={styles.actions}
+                        buttonColor='#FF0000'
+                        style={{borderRadius: 2}}
+                        textColor='white'
+                        onPress={async() => {
+                            if(delPass == ""){
+                                setDelErr("Please enter your password")
+                                return
+                            }
+                            Keyboard.dismiss()
+                            setDeleting(true)
+                            const { data, error } = await supabase.auth.signInWithPassword({
+                                phone: user.phone.slice(1),
+                                password: delPass
+                            });
+                            // console.log(user)
+
+
+                            if(error) {
+                                setDeleting(false)
+                                if(error.message.includes("credentials")){
+                                    setDelErr("Wrong input password")
+                                }else{
+                                    setDelErr(error.message)
+                                }
+                                console.log(error)
+                                return
+                            }
+
+                            setDeleting(false) 
+                            console.log(data.session.user.id == session, "sad")
+                            const { error: dErr } = await supabaseAdmin.auth.admin.deleteUser(session)
+
+                            if(dErr){
+                                console.log(error)
+                                alert(delErr.message)
+                                return
+                            }
+
+                            alert("Deleting your Account...");
+                            setTimeout(async() => {
+                                await supabase.from("customers").delete().eq('user_id', session)
+                                dispatch(setSession(null)) 
+                                dispatch(removeUser())
+                                await AsyncStorage.clear()
+                                await supabase.auth.signOut();
+                                navigation.dispatch(
+                                    StackActions.replace('signin')
+                                )
+                            }, 3000)
+                                // const { data, error } = await supabase.
+                            //     '715ed5db-f090-4b8c-a067-640ecee36aa0'
+                            // );
+
+                            // console.log(data)
+                        }}
+                        loading={deleting}
+                    >
+                        Delete
+                    </Button>
                 </Dialog.Actions>
             </Dialog>
             <GlobalDialog />
@@ -400,5 +510,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignSelf: 'flex-end'
-    }, 
+    },
+    actions: { 
+        paddingHorizontal: 20
+    } 
 })

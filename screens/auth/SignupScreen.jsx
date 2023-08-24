@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setLoadingFalse, setLoadingTrue } from '../../features/uxSlice'
 import { setSession, setUser } from '../../features/userSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StackActions } from '@react-navigation/native';
  
 
 const validationSchema = yup.object({
@@ -48,14 +49,16 @@ export default function SignupScreen({navigation}) {
     const [eyeIcon, setEyeIcon] = useState(false);  
     const signup = async(values) => {
         dispatch(setLoadingTrue())
-        const { data: exist } = await supabase.from('customers').select('email').eq('email', values.email)
-         
+        const { data: exist } = await supabase.from('customers').select('email').eq('email', values.email).single()
+        console.log(exist)
         const phone = `+63${values.phone.slice(1)}`; 
-        if(exist?.length !== 0){  
-            setSignupErr("Email address is already taken")
-            dispatch(setLoadingFalse())
-            return console.log('email: ')
-        } 
+        if(values.email !== ""){
+            if(exist.email == values.email){  
+                setSignupErr("Email address is already taken")
+                dispatch(setLoadingFalse())
+                return console.log('email: ')
+            } 
+        }
  
 
         const { data, error } = await supabase.auth.signUp({ 
@@ -97,9 +100,12 @@ export default function SignupScreen({navigation}) {
         /* SET STATE SESSION */
         dispatch(setSession(data?.session?.user?.id)) 
         dispatch(setUser(setData));
-        navigation.replace('user', { screen: 'home'});
-
+        
         dispatch(setLoadingFalse());
+        
+        navigation.dispatch(
+            StackActions.replace('user', { screen: 'home'})
+        ) 
     }
 
 

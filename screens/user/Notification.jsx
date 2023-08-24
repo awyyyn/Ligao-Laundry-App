@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useEffect } from 'react';
 import { supabase } from '../../supabaseConfig';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Dialog, Divider, IconButton, Modal, Portal, Provider } from 'react-native-paper';
+import { ActivityIndicator, Button, Dialog, Divider, FAB, IconButton, Modal, Portal, Provider } from 'react-native-paper';
 import { setMessages, setNotificaitons, setUnReadNotif } from '../../features/userSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -16,13 +16,11 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 export default function Notification() {
   const navigation = useNavigation()
   const dispatch = useDispatch(); 
-  const { session, messages, notifications, } = useSelector(state => state.user) 
- 
+  const { session, messages, notifications, } = useSelector(state => state.user);
+  const [notifs, setNotifs] = useState(notifications) 
   navigation.addListener('blur', () => { 
     setIsOpenNotif(false)
-  })
- 
-
+  }) 
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isOpenNotif, setIsOpenNotif] = useState(false);
@@ -31,11 +29,43 @@ export default function Notification() {
     title: '',
     message: '',
     date: ''
-  })
+  });
+  const [reloading, setReloading] = useState(false);
+
+  useEffect(() => {
+    setNotifs(notifications);
+  }, [notifications])
    
+  const getNotif = async () => {
+    setReloading(true);
+
+    const { data } = await supabase.from('notification').select().match({recipent_id: session, is_read: false })
+
+    dispatch(setUnReadNotif(data.length));
+
+    const { data: notification, error } = await supabase.from('notification').select().eq('recipent_id', session)
+    
+    if(error){
+        alert('Network error')
+        setReloading(false)
+        return
+    }
+    setNotifs(notification);
+    setReloading(false)
+  }
 
   return (
     <Provider>
+      
+      <FAB
+        icon='reload'
+        style={{position: 'absolute', bottom: 30, right: 30, zIndex: 999}}
+        animated
+        variant='surface'
+        color='#00667e'
+        loading={reloading}
+        onPress={() => getNotif()}
+      />
       <View  style={styles.container} >  
         {
           notifications && !notifications.length ? (
@@ -43,32 +73,38 @@ export default function Notification() {
               <FontAwesome5 name="inbox" size={150} color="#00667E" style={{marginTop: -50}} />
               <Text style={{color: 'gray'}}>You don't have more notifications to review</Text>
             </View>
-          ) : (
+          ) : reloading ? <>
+            <View style={{marginTop: '90%'}}>
+                <ActivityIndicator animating size={50} color='#00667e' />
+            </View>
+          </> : (
             <FlatList 
-              style={{marginBottom: 20, paddingHorizontal: 20, }}
+              style={{marginBottom: 20, paddingHorizontal: 20, marginTop: 20 }}
               inverted
               keyExtractor={(item) => item.id}
-              data={notifications}
+              data={notifs}
               renderItem={({item}) => (
-                <TouchableOpacity onPress={async() => {
-                  if(item.is_read === false){ 
-                    await supabase.from('notification').update({'is_read': true}).eq('id', Number(item.id)).select(); 
-                  }
-                  setNotifValue({
-                    date: item.created_at,
-                    message: item.notification_message,
-                    title: item.notification_title
-                  })
-                  setIsOpenNotif(true);
-                }}
+                <TouchableOpacity 
+                  onPress={async() => {
+                    if(item.is_read === false){ 
+                      await supabase.from('notification').update({'is_read': true}).eq('id', Number(item.id)).select(); 
+                    }
+                    setNotifValue({
+                      date: item.created_at,
+                      message: item.notification_message,
+                      title: item.notification_title
+                    })
+                    setIsOpenNotif(true);
+                  }}
+
                   onLongPress={async() => {
                     setIdDelete(item.id);
-                    setIsOpen(true) 
-                  }}
+                    setIsOpen(true)  
+                  }}  
                   
                 >
                   <View style={[styles.notif, {backgroundColor: item.is_read ? 'white' : '#00667E30', position: 'relative'}]}> 
-                    <Text style={{fontSize: 20, fontWeight: item.is_read ? '300' : 'bold'}}>{item.notification_message}</Text>
+                    <Text style={{fontSize: 20, fontWeight: item.is_read ? '300' : '500'}}>{String(item.notification_title).substring(0, 25)}...</Text>
                   </View> 
                 </TouchableOpacity>
               )}
@@ -116,8 +152,8 @@ export default function Notification() {
             <View>
               <Text style={styles.modalTitle}>{notifValue.title}</Text>
             </View> 
-            <View style={styles.modalContent}>
-              <Text>{notifValue.message}</Text>
+            <View style={[styles.modalContent,  { marginBottom: 20}]}>
+              <Text style={{fontSize: Dimensions.get('window').fontScale = 18, lineHeight: 29, letterSpacing: 1 }}>{notifValue.message}</Text>
             </View>
             <View style={styles.modalFooter}>  
               <TouchableOpacity style={styles.viewAction} onPress={() => navigation.navigate('status')}>
