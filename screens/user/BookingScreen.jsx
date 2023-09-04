@@ -263,6 +263,13 @@ export default function BookScreen() {
                           time: getTime,
                           date: date.toLocaleString().split(',')[0]
                         }).select()
+                        await supabase.from('notification')
+                          .insert({
+                              recipent_id: 'admin', 
+                              is_read: false  , 
+                              notification_title: 'book', 
+                              notification_message: `${user.name} book a ${type} service.`
+                          });
                         // console.log(data)
                         if(error) console.log(error)
                         dispatch(toggleNotify({

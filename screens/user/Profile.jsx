@@ -219,7 +219,7 @@ export default function Profile() {
                                         handlePress={async() => {
                                             Keyboard.dismiss();
                                             dispatch(toggleIsLoading({toggle: true}));
-                                            const new_phone = `63${String(customerPhone).slice(1)}`;
+                                            const new_phone = `+63${String(customerPhone).slice(1)}`;
 
                                             console.log(new_phone);
                                             if(customerPhone == "09453414395"){
@@ -376,7 +376,7 @@ export default function Profile() {
             </Dialog>
             
             <Dialog  visible={deleteAcc} dismissable onDismiss={() => setDialog("")} style={{marginTop: "-30%", backgroundColor: "#FFFFFF", borderRadius: 5}}> 
-                <Dialog.Title>Danger</Dialog.Title>
+                <Dialog.Title>Delete your account</Dialog.Title>
                 <Dialog.Content style={{gap:10}}>
                     <Text>Do you really want to delete your account ?</Text>
                     <TextInput 

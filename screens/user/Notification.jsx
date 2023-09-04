@@ -54,6 +54,8 @@ export default function Notification() {
     setReloading(false)
   }
 
+  console.log(notifs)
+
   return (
     <Provider>
       
@@ -65,20 +67,20 @@ export default function Notification() {
         color='#00667e'
         loading={reloading}
         onPress={() => getNotif()}
-      />
-      <View  style={styles.container} >  
+      /> 
+      <View style={styles.container} >  
         {
-          notifications && !notifications.length ? (
+          notifications && notifications.length == 0 ? (
             <View style={{  width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center',}}>
               <FontAwesome5 name="inbox" size={150} color="#00667E" style={{marginTop: -50}} />
-              <Text style={{color: 'gray'}}>You don't have more notifications to review</Text>
+              <Text style={{color: 'gray'}}>No New Notifications</Text>
             </View>
           ) : reloading ? <>
             <View style={{marginTop: '90%'}}>
                 <ActivityIndicator animating size={50} color='#00667e' />
             </View>
           </> : (
-            <FlatList 
+            <FlatList  
               style={{marginBottom: 20, paddingHorizontal: 20, marginTop: 20 }}
               inverted
               keyExtractor={(item) => item.id}
@@ -113,6 +115,7 @@ export default function Notification() {
         }
         
         <Portal>
+
           <Dialog visible={isOpen} onDismiss={() => setIsOpen(false)} style={styles.dialog}  theme={{mode: 'adaptive', roundness: 2}}>
             <Dialog.Title><Text style={{fontWeight: '600'}}>Delete</Text></Dialog.Title>
             <Dialog.Content>
@@ -148,6 +151,7 @@ export default function Notification() {
             </Dialog.Actions>
           </Dialog>
 
+
           <Modal visible={isOpenNotif} onDismiss={() => setIsOpenNotif(false)} style={styles.modal} contentContainerStyle={styles.modalContainer}>
             <View>
               <Text style={styles.modalTitle}>{notifValue.title}</Text>
@@ -162,6 +166,7 @@ export default function Notification() {
               </TouchableOpacity>
             </View>
           </Modal>
+
         </Portal> 
       </View>
     </Provider>

@@ -68,12 +68,11 @@ export default function ForgotPassword() {
                                     return setErr('Email is not registered');
                                 }
 
-                                const { error, data } = await supabase.auth.resetPasswordForEmail(values.email, {
-                                    redirectTo: 'http://localhost:3000/resetpassword'
-                                })
+                                const { error, data } = await supabase.auth.resetPasswordForEmail(values.email)
                                 console.log(error)
                                 if(error){
                                     dispatch(setLoadingFalse())
+                                    setErr(error.message)
                                     return console.log(error.message)
                                 } 
                                 isSent('Password Link Sent')

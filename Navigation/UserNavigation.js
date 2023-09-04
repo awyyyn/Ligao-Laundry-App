@@ -69,6 +69,14 @@ export default function UserNavigation() {
 
         return () => supabase.removeChannel(subscription)
     }, [])
+
+
+
+    const handleMessages = useCallback(async() => {  
+        await supabase.from('message_channel').update({'is_read_by_customer': true}).eq('sender_id', session).select();
+        dispatch(setUnreadMessages(0));
+        navigation.navigate('message')
+    }, [])
  
 
     return (
@@ -102,10 +110,7 @@ export default function UserNavigation() {
                         </TouchableOpacity>
                         <TouchableOpacity 
                             style={{position: 'relative'}} 
-                            onPress={async() => {
-                                await supabase.from('message_channel').update({'is_read_by_customer': true}).eq('sender_id', session).select();
-                                navigation.navigate('message')
-                            }} 
+                            onPress={handleMessages} 
                         >
                             <Feather name='message-square' size={25}  color='#fff' /> 
                             <Badge visible={unreadMessage} style={{position: 'absolute', top: -5, right: -5, color: '#FFFFFF', backgroundColor: '#FF0000'}}>

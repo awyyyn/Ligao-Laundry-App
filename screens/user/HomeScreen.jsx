@@ -14,12 +14,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getItemAsync, setItemAsync } from 'expo-secure-store';
 import { useCallback } from 'react'; 
 import { Alert } from 'react-native';
+import { RefreshControl } from 'react-native-gesture-handler';
+import { useState } from 'react';
 
 export default function HomeScreen() {
   const { session } = useSelector(state => state.user);  
   const { isLoading } = useSelector(state => state.ux)
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const [refresh, setRefresh] = useState(false)
 
   // console.log('homescreen check session', session);
   
@@ -66,8 +69,7 @@ export default function HomeScreen() {
     getMessages();
     getNotifications();
     dispatch(setLoadingFalse())
-  }, [])
- 
+  }, []) 
  
 
   return ( 
@@ -76,7 +78,17 @@ export default function HomeScreen() {
           <Modal  
           />
         </Portal>
-        <ScrollView scrollEnabled={!isLoading}>
+        <ScrollView 
+          scrollEnabled={!isLoading}
+          refreshControl={
+            <RefreshControl refreshing={refresh} onRefresh={() => {
+              setRefresh(true)
+              getMessages();
+              getNotifications();
+              setRefresh(false)
+            }} />
+          }
+        >
           {
             isLoading && (<Loading />)
           }

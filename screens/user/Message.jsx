@@ -1,7 +1,7 @@
 import { Dimensions, Keyboard, StyleSheet, Text, View, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { ActivityIndicator, Button, Divider, IconButton, TextInput } from 'react-native-paper'
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { RefreshControl, TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { MessageContainer } from '../components';
 import { useRef } from 'react';
 import { useEffect } from 'react';
@@ -21,6 +21,7 @@ export default function Message() {
     const navigation = useNavigation();
     const [show, setShow] = useState(false);
     const dispatch = useDispatch() 
+    const [refresh, setRefresh] = useState(false);
 
     const updateUnread = async () => {
         await supabase.from('message_channel').update({'is_read_by_customer': true}).eq('sender_id', session)
@@ -30,6 +31,7 @@ export default function Message() {
         const { data } = await supabase.from('message_channel').select().match({sender_id: session, is_read_by_customer: false });
         dispatch(setUnreadMessages(data.length))  
     } 
+ 
 
     // console.log(dataArr)
     useEffect(() => { 
@@ -60,11 +62,21 @@ export default function Message() {
         if(message == "") return
         const { error } = await supabase.from('message_channel')
             .insert({sender_id: session, recipent_id: 'admin', message: message, name: user.name, is_read_by_customer: true})  
+
+        await supabase.from('notification')
+            .insert({
+                recipent_id: 'admin', 
+                is_read: false, 
+                notification_title: 'message', 
+                notification_message: `${user.name} sent a message.`
+            });
+        
         if(error) {
             return console.log(error.message)
         }
     }
       
+    console.log(messages)
 
     return (
         <View onPress={() => Keyboard.dismiss()} >
@@ -78,7 +90,7 @@ export default function Message() {
                     </> : 
                     <>
                         <View style={styles.messagesContainer}> 
-                            <FlatList
+                            <FlatList 
                                 scrollEnabled
                                 contentContainerStyle={{flexDirection: 'column-reverse'}}
                                 inverted

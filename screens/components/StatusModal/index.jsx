@@ -17,11 +17,11 @@ export default function index({
                 <View style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <AntDesign name='warning' size={50} color='#ff9736' />
                 </View>
-                <Divider />
+                {/* <Divider /> */}
                 <View>
                     <Text style={{fontSize: 22, paddingVertical: 20, textAlign: 'center'}}>Are you sure to cancel {/* {toDelete?.service_type} booked in {toDelete?.date} at {toDelete?.time} */}this booked service?</Text>
                 </View>
-                <Divider />
+                {/* <Divider /> */}
                 <View 
                     style={{
                         display: 'flex',
@@ -33,14 +33,16 @@ export default function index({
                 >
                     <Button 
                         mode='elevated' 
-                        buttonColor='#15bd71' 
+                        buttonColor='#00667E' 
                         textColor='#ffffff' 
+                        style={{minWidth: 100}}
                         onPress={handleDismiss}
                     >No</Button>
                     <Button 
                         mode='elevated' 
                         buttonColor='#FF0000' 
                         textColor='#FFFFFF'
+                        style={{minWidth: 100}}
                         onPress={async() => {
                             const {error} = await supabase.from('laundries_table').delete().eq('id', toDelete.id);
                             // console.log('delete')
