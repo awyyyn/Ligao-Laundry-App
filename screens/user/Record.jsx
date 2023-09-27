@@ -5,20 +5,22 @@ import { useNavigation } from '@react-navigation/native'
 import userStyles from '../styles/user-styles';
 import { supabase } from '../../supabaseConfig';
 import { useSelector } from 'react-redux'; 
+import { RefreshControl } from 'react-native-gesture-handler';
 
 export default function Record() { 
   const { session, user, messages } = useSelector(state => state.user)
   const [loading, setLoading] = useState(true)
+  const [refresh, setRefresh] = useState(false);
   const [data, setData] = useState()
   const navigation = useNavigation(); 
 
+  const getStatusData = async (data) => {
+    setLoading(true)
+    const res = await supabase.from('laundries_table').select().match({user_id: session, status: ''}) 
+    setData(res.data);
+    setLoading(false)
+  }
   useEffect(() => {
-    const getStatusData = async (data) => {
-      setLoading(true)
-      const res = await supabase.from('laundries_table').select().match({user_id: session, status: 'done'}) 
-      setData(res.data);
-      setLoading(false)
-    }
 
     getStatusData() 
 
@@ -32,7 +34,9 @@ export default function Record() {
   </View>
 
   return (
-    <ScrollView style={{paddingVertical: 10, marginHorizontal: 20, marginBottom: 10}}>
+    <ScrollView 
+      refreshControl={<RefreshControl refreshing={refresh} onRefresh={getStatusData} />}
+      style={{paddingVertical: 10, marginHorizontal: 20, marginBottom: 10}}>
       {
         data.length < 1 ? <>
           <View style={{width: '100%', alignItems: 'center', marginTop: '30%'}}>

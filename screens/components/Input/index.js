@@ -27,6 +27,10 @@ export default function index({
                 label={label ? label : null}
                 onChangeText={handleChange}
                 mode="outlined"
+                autoComplete="off"
+                autoCorrect={false}
+                importantForAutofill="no"
+
                 activeOutlineColor="grey"
                 outlineColor="#e6e6e6" 
                 placeholder={placeholder ? placeholder : null}

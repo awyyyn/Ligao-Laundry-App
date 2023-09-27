@@ -20,8 +20,7 @@ export default function Message() {
     const [dataArr, setData] = useState(messages);
     const navigation = useNavigation();
     const [show, setShow] = useState(false);
-    const dispatch = useDispatch() 
-    const [refresh, setRefresh] = useState(false);
+    const dispatch = useDispatch()  
 
     const updateUnread = async () => {
         await supabase.from('message_channel').update({'is_read_by_customer': true}).eq('sender_id', session)
@@ -68,15 +67,16 @@ export default function Message() {
                 recipent_id: 'admin', 
                 is_read: false, 
                 notification_title: 'message', 
-                notification_message: `${user.name} sent a message.`
+                notification_message: `${user.name} sent a message.`,
+                sent_by: user.name,
+                sent_by_id: session
             });
         
         if(error) {
             return console.log(error.message)
         }
     }
-      
-    console.log(messages)
+        
 
     return (
         <View onPress={() => Keyboard.dismiss()} >
@@ -137,6 +137,9 @@ export default function Message() {
                         onFocus={() => setFocus(true)}
                         onBlur={() => setFocus(false)}
                         onSubmitEditing={handleSubmit}
+                        placeholder='Type a message...'
+                        placeholderTextColor='#00667E50'
+                        
                     />
                     <IconButton
                         onPress={handleSubmit}

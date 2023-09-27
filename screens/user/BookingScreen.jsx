@@ -268,7 +268,9 @@ export default function BookScreen() {
                               recipent_id: 'admin', 
                               is_read: false  , 
                               notification_title: 'book', 
-                              notification_message: `${user.name} book a ${type} service.`
+                              notification_message: `${user.name} book a ${type} service.`,
+                              sent_by: user.name,
+                              sent_by_id: session
                           });
                         // console.log(data)
                         if(error) console.log(error)

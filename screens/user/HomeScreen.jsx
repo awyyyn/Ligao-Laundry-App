@@ -23,8 +23,7 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(false)
-
-  // console.log('homescreen check session', session);
+ ;
   
   useEffect(() => {
 
@@ -50,13 +49,14 @@ export default function HomeScreen() {
   }, [])
     
   const getMessages = async () => {
-    const { data } = await supabase.from('message_channel').select().eq('sender_id', session)
     const { data: session } = await supabase.auth.getSession()
+    const { data } = await supabase.from('message_channel').select().eq('sender_id', session.session.user.id)
     /* SET TOKENS IN ASYNC STORAGE */
     await AsyncStorage.setItem('access_token', session.session.access_token)
     await AsyncStorage.setItem('refresh_token', session.session.refresh_token)
     
     await AsyncStorage.setItem('@session_key', session.session.user.id); 
+   
     dispatch(setMessages(data))
   }
 
@@ -69,6 +69,13 @@ export default function HomeScreen() {
     getMessages();
     getNotifications();
     dispatch(setLoadingFalse())
+    const subscription = supabase.channel("any")
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message_channel' }, (payload) => {
+        getMessages();
+      }).subscribe()
+
+    return () => subscription.unsubscribe()
+
   }, []) 
  
 
