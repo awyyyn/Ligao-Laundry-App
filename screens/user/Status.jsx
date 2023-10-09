@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusModal } from '../components';
 import { supabase, supabaseAdmin } from '../../supabaseConfig';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 export default function Status() {
     const { session, laundries } = useSelector((state) => state.user);
@@ -80,135 +81,142 @@ export default function Status() {
     return (
         <> 
             <Provider>
-                <Portal>
-                    <StatusModal visible={modal} toDelete={toDelete} handleDismiss={() => setModal(false)} />
-                    
-                    <Modal
-                        visible={confirm}
-                        onDismiss={() => setConfirm(false)}
-                        contentContainerStyle={{
-                            backgroundColor: "#FFF",
-                            width: '90%',
-                            alignSelf: "center",
-                            padding: 15,
-                            borderRadius: 5,
-                            gap: 15,
-                            marginTop: -100,
-                            paddingVertical: 22
-                        }}
-                    >
-                        <View style={{gap: 12}}>
-                            <Text style={{fontSize: 22, fontWeight: '600'}}>Pick up Confirmation</Text>
-                            <Text style={{fontSize: 18, fontWeight: '400'}}>
-                                Laundry is already received?
-                            </Text>
-                        </View>
-                        <View
-                            style={{
-                                display: 'flex',
-                                flexDirection: "row",
-                                justifyContent: 'flex-end',
-                                gap: 10
+                <ScrollView 
+                    contentContainerStyle={styles.container}
+                    refreshControl={<RefreshControl
+                        refreshing={reloading}
+                        
+                        onRefresh={getLaundry}
+                    />}
+                >
+                    <Portal> 
+                        <StatusModal visible={modal} toDelete={toDelete} handleDismiss={() => setModal(false)} /> 
+                        <Modal
+                            visible={confirm}
+                            onDismiss={() => setConfirm(false)}
+                            contentContainerStyle={{
+                                backgroundColor: "#FFF",
+                                width: '90%',
+                                alignSelf: "center",
+                                padding: 15,
+                                borderRadius: 5,
+                                gap: 15,
+                                marginTop: -200,
+                                paddingVertical: 22
                             }}
                         >
-                            <Button
+                            <View style={{gap: 12}}>
+                                <Text style={{fontSize: 22, fontWeight: '600'}}>Pick up Confirmation</Text>
+                                <Text style={{fontSize: 18, fontWeight: '400'}}>
+                                    Laundry is already received?
+                                </Text>
+                            </View>
+                            <View
                                 style={{
-                                    minWidth: 100,
-                                    backgroundColor: 'red'
+                                    display: 'flex',
+                                    flexDirection: "row",
+                                    justifyContent: 'flex-end',
+                                    gap: 10
                                 }}
-                                textColor='#FFF'
-                                onPress={() => setConfirm(false)}
                             >
-                                No
-                            </Button>
-                            <Button
-                                style={{
-                                    minWidth: 100,
-                                    backgroundColor: '#00667E',
-                                }}
-                                textColor='#FFF'
-                                onPress={async () => {
+                                <Button
+                                    style={{
+                                        minWidth: 100,
+                                        backgroundColor: 'red'
+                                    }}
+                                    textColor='#FFF'
+                                    onPress={() => setConfirm(false)}
+                                >
+                                    No
+                                </Button>
+                                <Button
+                                    style={{
+                                        minWidth: 100,
+                                        backgroundColor: '#00667E',
+                                    }}
+                                    textColor='#FFF'
+                                    onPress={async () => {
 
-                                    // console.log(toConfirmData)
-                                    const {error } =  await supabase.from('laundries_table').update({status: ''}).eq('id', toConfirmData);
-                                    // console.log(error)
-                                    // console.log(data)\
-                                    setConfirm(false)
-                                }}
-                            >
-                                Yes
-                            </Button>
-                        </View>
-                    </Modal>
-                </Portal> 
-                <FAB
-                    icon='reload'
-                    style={{position: 'absolute', bottom: 30, right: 30, zIndex: 999}}
-                    animated
-                    variant='surface'
-                    color='#00667e'
-                    loading={reloading}
-                    onPress={() => getLaundry()}
-                /> 
-                <ScrollView style={styles.container}> 
-                    {reloading ? <>
-                        <View style={{marginTop: '90%'}}>
-                            <ActivityIndicator animating size={50} color='#00667e' /> 
-                        </View>
-                    </> :
-                    laundriesData?.map((laundry) => {  
-                        return (
-                            <TouchableOpacity
-                                activeOpacity={laundry.status == "pending" || laundry.status == "washing" ? 1 : 0.3 }
-                                onPress={() => {
-                                    if(laundry.status.includes("done")){ 
-                                        setToConfirmData(laundry.id)
-                                        console.log(laundry.id)
-                                        setConfirm(true)
-                                    }
-                                }}
-                                key={laundry.id} 
-                            >
-                                <View 
-                                    style={[
-                                        styles.service, 
-                                        { 
-                                            borderColor: laundry.status == "pending" ? "rgba(0, 0, 0, 0.1)" : laundry.status == "washing" ? "#00667e30" : "#00667E",
-                                            borderWidth: 2
+                                        // console.log(toConfirmData)
+                                        const {error } =  await supabase.from('laundries_table').update({status: ''}).eq('id', toConfirmData);
+                                        // console.log(error)
+                                        // console.log(data)\
+                                        setConfirm(false)
+                                    }}
+                                >
+                                    Yes
+                                </Button>
+                            </View>
+                        </Modal>
+                    </Portal> 
+                    {/* <FAB
+                        icon='reload'
+                        style={{position: 'absolute', bottom: 30, right: 30, zIndex: 999}}
+                        animated
+                        variant='surface'
+                        color='#00667e'
+                        loading={reloading}
+                        onPress={() => getLaundry()}
+                    />  */}
+                    {/* <View style={styles.container}>  */}
+                        {reloading ? <>
+                            <View style={{marginTop: '90%'}}>
+                                <ActivityIndicator animating size={50} color='#00667e' /> 
+                            </View>
+                        </> :
+                        laundriesData?.map((laundry) => {  
+                            return (
+                                <TouchableOpacity
+                                    activeOpacity={laundry.status == "pending" || laundry.status == "washing" ? 1 : 0.3 }
+                                    onPress={() => {
+                                        if(laundry.status.includes("done")){ 
+                                            setToConfirmData(laundry.id)
+                                            console.log(laundry.id)
+                                            setConfirm(true)
                                         }
-                                    ]}
+                                    }}
+                                    key={laundry.id} 
                                 >
                                     <View 
-                                    >    
-                                        <Text style={[styles.serviceText, {color: laundry.status == "pending" ? "rgba(0, 0, 0, 0.7)" : "#00667E"}]}>
-                                            {laundry.service_type}
-                                        </Text>
-                                        <View style={[styles.row, {justifyContent: 'space-between'}]}>
-                                            <Text style={{
-                                                textTransform: 'capitalize',
-                                                display: laundry.status == "pending" ? "none" : 'flex'
-                                            }}>
-                                                {laundry.status == "done" ? "Ready to pick up" : `${laundry.status}...`}
+                                        style={[
+                                            styles.service, 
+                                            { 
+                                                borderColor: laundry.status == "pending" ? "rgba(0, 0, 0, 0.1)" : laundry.status == "washing" ? "#00667e30" : "#00667E",
+                                                borderWidth: 2
+                                            }
+                                        ]}
+                                    >
+                                        <View 
+                                        >    
+                                            <Text style={[styles.serviceText, {color: laundry.status == "pending" ? "rgba(0, 0, 0, 0.7)" : "#00667E"}]}>
+                                                {laundry.service_type}
                                             </Text>
-                                            <Text>
-                                                {laundry.status == "pending" ?  laundry.status : `₱ ${laundry.price}`}
-                                            </Text> 
+                                            <View style={[styles.row, {justifyContent: 'space-between'}]}>
+                                                <Text style={{
+                                                    textTransform: 'capitalize',
+                                                    display: laundry.status == "pending" ? "none" : 'flex'
+                                                }}>
+                                                    {laundry.status == "done" ? "Ready to pick up" : `${laundry.status}...`}
+                                                </Text>
+                                                <Text>
+                                                    {laundry.status == "pending" ?  laundry.status : `₱ ${laundry.price}`}
+                                                </Text> 
+                                            </View>
                                         </View>
+                                        <Text 
+                                            style={[styles.textCancel, {display: laundry.status == "pending" ? "flex" : 'none'}]}
+                                            onPress={() => {
+                                                console.log("PRESSED")
+                                                setToDelete(laundry)
+                                                setModal(true)
+                                            }}
+                                        >Cancel</Text>
                                     </View>
-                                    <Text 
-                                        style={[styles.textCancel, {display: laundry.status == "pending" ? "flex" : 'none'}]}
-                                        onPress={() => {
-                                            console.log("PRESSED")
-                                            setToDelete(laundry)
-                                            setModal(true)
-                                        }}
-                                    >Cancel</Text>
-                                </View>
-                            </TouchableOpacity>
-                        )
-                    })} 
-                </ScrollView> 
-
+                                </TouchableOpacity>
+                            )
+                        })} 
+                    {/* </View>   */}
+                </ScrollView>
             </Provider> 
         </>
     ); 

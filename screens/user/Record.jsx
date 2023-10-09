@@ -16,7 +16,7 @@ export default function Record() {
 
   const getStatusData = async (data) => {
     setLoading(true)
-    const res = await supabase.from('laundries_table').select().match({user_id: session, status: ''}) 
+    const res = await supabase.from('laundries_table').select().match({user_id: session, status: 'done'}) 
     setData(res.data);
     setLoading(false)
   }
@@ -36,7 +36,7 @@ export default function Record() {
   return (
     <ScrollView 
       refreshControl={<RefreshControl refreshing={refresh} onRefresh={getStatusData} />}
-      style={{paddingVertical: 10, marginHorizontal: 20, marginBottom: 10}}>
+      style={{paddingVertical: 10, marginHorizontal: 20, marginBottom: 1}}>
       {
         data.length < 1 ? <>
           <View style={{width: '100%', alignItems: 'center', marginTop: '30%'}}>

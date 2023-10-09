@@ -1,6 +1,6 @@
 import { Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import { FlatList, ScrollView } from 'react-native-gesture-handler'
+import React, { useCallback } from 'react'
+import { FlatList, RefreshControl, ScrollView } from 'react-native-gesture-handler'
 import { useState } from 'react'
 import { useEffect } from 'react';
 import { supabase } from '../../supabaseConfig';
@@ -53,16 +53,18 @@ export default function Notification() {
         setReloading(false)
         return
     }
-    setNotifs(notification);
+
+    const ordered = notification.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+
+    setNotifs(ordered);
     setReloading(false)
   }
-
-  console.log(notifs)
+ 
 
   return (
     <Provider>
       
-      <FAB
+      {/* <FAB
         icon='reload'
         style={{position: 'absolute', bottom: 30, right: 30, zIndex: 999}}
         animated
@@ -70,52 +72,65 @@ export default function Notification() {
         color='#00667e'
         loading={reloading}
         onPress={() => getNotif()}
-      /> 
-      <View style={styles.container} >  
+      />  */}
+      <ScrollView 
+        contentContainerStyle={{
+          flexGrow: 1, 
+          alignItems: 'center',
+          width: Dimensions.get('window').width,
+          paddingBottom: 20
+        }} 
+        showsVerticalScrollIndicator={false} 
+        refreshControl={<RefreshControl
+          onRefresh={getNotif}
+          refreshing={reloading}
+        />}    
+      >  
         {
           notifs && notifs.length == 0 ? (
             <View style={{  width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center',}}>
               <FontAwesome5 name="inbox" size={150} color="#00667E" style={{marginTop: -50}} />
               <Text style={{color: 'gray'}}>No New Notifications</Text>
             </View>
-          ) : reloading ? <>
+          )/*  : reloading ? <>
             <View style={{marginTop: '90%'}}>
                 <ActivityIndicator animating size={50} color='#00667e' />
             </View>
-          </> : (
-            <> 
-              <FlatList  
-                style={{marginBottom: 20, paddingHorizontal: 20, marginTop: 20 }}
-                inverted
-                keyExtractor={(item) => item.id}
-                data={notifs}
-                renderItem={({item}) => (
-                  <TouchableOpacity 
-                    onPress={async() => {
-                      if(item.is_read === false){ 
-                        await supabase.from('notification').update({'is_read': true}).eq('id', Number(item.id)).select(); 
-                      }
-                      setNotifValue({
-                        date: item.created_at,
-                        message: item.notification_message,
-                        title: item.notification_title
-                      })
-                      setIsOpenNotif(true);
-                    }}
+          </>  */: (
+            <View
+              style={{
+                width: '85%',
+                marginTop: 30
+              }}
+            > 
+              {notifs?.map(item => (  
+                <TouchableOpacity 
+                  key={item.id}
+                  onPress={async() => {
+                    if(item.is_read === false){ 
+                      await supabase.from('notification').update({'is_read': true}).eq('id', Number(item.id)).select(); 
+                    }
+                    setNotifValue({
+                      date: item.created_at,
+                      message: item.notification_message,
+                      title: item.notification_title
+                    })
+                    setIsOpenNotif(true);
+                    console.log('asd')
+                  }}
 
-                    onLongPress={async() => {
-                      setIdDelete(item.id);
-                      setIsOpen(true)  
-                    }}  
-                    
-                  >
-                    <View style={[styles.notif, {backgroundColor: item.is_read ? 'white' : '#00667E30', position: 'relative'}]}> 
-                      <Text style={{fontSize: 20, fontWeight: item.is_read ? '300' : '500'}}>{String(item.notification_title).substring(0, 25)}...</Text>
-                    </View> 
-                  </TouchableOpacity>
-                )}
-              />
-            </>
+                  onLongPress={async() => {
+                    setIdDelete(item.id);
+                    setIsOpen(true)  
+                  }}  
+                  
+                >
+                  <View style={[styles.notif, {backgroundColor: item.is_read ? 'white' : '#00667E30', position: 'relative'}]}> 
+                    <Text style={{fontSize: 20, fontWeight: item.is_read ? '300' : '500'}}>{String(item.notification_title).substring(0, 25)}...</Text>
+                  </View> 
+                </TouchableOpacity>
+              ))}
+            </View>
           )
         }
         
@@ -173,7 +188,7 @@ export default function Notification() {
           </Modal>
 
         </Portal> 
-      </View>
+      </ScrollView>
     </Provider>
   )
 }
