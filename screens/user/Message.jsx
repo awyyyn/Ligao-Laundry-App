@@ -1,5 +1,5 @@
 import { Dimensions, Keyboard, StyleSheet, Text, View, ScrollView } from 'react-native'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { ActivityIndicator, Button, Divider, IconButton, TextInput } from 'react-native-paper'
 import { RefreshControl, TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { MessageContainer } from '../components';
@@ -18,8 +18,10 @@ export default function Message() {
     const [message, setMessage] = useState('');
     const [focus, setFocus] = useState(false);
     const [dataArr, setData] = useState(messages);
+    const [refreshing, setRefreshing] = useState(false)
     const navigation = useNavigation();
     const [show, setShow] = useState(false);
+    const [loading, setLoading] = useState(true)
     const dispatch = useDispatch()  
 
     const updateUnread = async () => {
@@ -34,6 +36,7 @@ export default function Message() {
 
     // console.log(dataArr)
     useEffect(() => { 
+        setTimeout(() => setLoading(false), 3000)
         const subscription = supabase.channel('any')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message_channel' }, (payload) => {
                 // console.log("paylod", payload)
@@ -51,7 +54,7 @@ export default function Message() {
                 dispatch(setUnreadMessages(0));
             }).subscribe()
 
-        return () => supabase.removeChannel(subscription); 
+        return () => subscription.unsubscribe(); 
         
     }, [])
    
@@ -59,8 +62,8 @@ export default function Message() {
         Keyboard.dismiss();  
         setMessage('')
         if(message == "") return
-        const { error } = await supabase.from('message_channel')
-            .insert({sender_id: session, recipent_id: 'admin', message: message, name: user.name, is_read_by_customer: true})  
+        const { error, data: newMessage } = await supabase.from('message_channel')
+            .insert({sender_id: session, recipent_id: 'admin', message: message, name: user.name, is_read_by_customer: true}).select()
 
         await supabase.from('notification')
             .insert({
@@ -72,9 +75,15 @@ export default function Message() {
                 sent_by_id: session
             });
         
+            console.log(newMessage)
         if(error) {
             return console.log(error.message)
         }
+
+        setData(data => ([
+            ...data,
+            ...newMessage
+        ]))
     }
         
 
@@ -90,41 +99,79 @@ export default function Message() {
                     </> : 
                     <>
                         <View style={styles.messagesContainer}> 
+                            {(refreshing || loading) && 
+                                <View 
+                                    style={{
+                                        height: '100%',
+                                        width: '100%',
+                                        display: 'flex',
+                                        flex: 1,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        position: 'absolute',
+                                        zIndex: 99,
+                                        backgroundColor: 'white'
+                                    }}
+                                >
+                                    {/* <Text>Fetching Messages</Text> */}
+                                    <ActivityIndicator 
+                                        color='#00667E'
+                                        animating={refreshing || loading}   
+                                    />
+                                </View>
+                            }
+                            
                             <FlatList 
                                 scrollEnabled
                                 contentContainerStyle={{flexDirection: 'column-reverse'}}
                                 inverted
+                                refreshControl={
+                                    <RefreshControl 
+                                        refreshing={refreshing}
+                                        onRefresh={async() => {
+                                            setRefreshing(true)
+                                            const { data } = await supabase.from('message_channel').select().eq('sender_id', session)
+                                            const orderBy = data.sort((itemA, itemB) => new Date(itemA.created_at) - new Date(itemB.created_at))
+                                            setData(orderBy) 
+                                            setTimeout(() => setRefreshing(false), 1000)
+                                        }}
+                                    />
+                                }
                                 data={dataArr}
+                                alwaysBounceVertical
+                                showsVerticalScrollIndicator={false}
                                 renderItem={({item}) => {
                                 
                                     const date = new Date(item.created_at);
                                     const readable =  date.toLocaleString('en-us', { timeZone: 'Asia/Manila'});  
                                     
                                     return( 
-                                        <View style={[{alignItems: item.name != null ? 'flex-end' : 'flex-start'}, styles.messageAlert]}>
-                                            <View  
-                                                onPress={() => {
-                                                    console.log("ALERT")
-                                                    setShow(!show)
-                                                }}
-                                                style={{
-                                                    backgroundColor: '#00667E',  
-                                                    borderRadius: 50, 
-                                                    paddingHorizontal: 20, 
-                                                    paddingVertical: 12,
-                                                    maxWidth: '75%'
-                                                }}
-                                            >    
-                                                <Text style={{color: 'white', fontSize: 18, }}>{item.message}</Text>
-                                            </View> 
-                                            <Text style={{fontSize: 10, color: 'gray', marginRight: 5}}>
-                                                {readable}
-                                            </Text> 
-                                        </View>  
+                                        <>
+                                            <View style={[{alignItems: item.name != null ? 'flex-end' : 'flex-start'}, styles.messageAlert]}>
+                                                <View  
+                                                    onPress={() => {
+                                                        console.log("ALERT")
+                                                        setShow(!show)
+                                                    }}
+                                                    style={{
+                                                        backgroundColor: '#00667E',  
+                                                        borderRadius: 50, 
+                                                        paddingHorizontal: 20, 
+                                                        paddingVertical: 12,
+                                                        maxWidth: '75%'
+                                                    }}
+                                                >    
+                                                    <Text style={{color: 'white', fontSize: 18, }}>{item.message}</Text>
+                                                </View> 
+                                                <Text style={{fontSize: 10, color: 'gray', marginRight: 5}}>
+                                                    {readable}
+                                                </Text> 
+                                            </View>   
+                                        </>
                                     )
                                 }} 
                                 keyExtractor={item => item.channel_id}
-                            />
+                            /> 
                         </View>
                     </>
                 }

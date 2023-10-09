@@ -265,9 +265,9 @@ export default function Profile() {
                                                 .select(); 
                                                 const { data, error } = await supabase.auth.updateUser({phone: new_phone})
                                                 if(error){
-                                                    dispatch(toggleIsLoading());
+                                                    dispatch(toggleIsLoading({toggle: false}));
                                                     dispatch(toggleNotify({isOpen: true, label: 'Network Error!', color: 'red', top: 10}))
-                                                    return console.log("NETWORL ERROR")
+                                                    return console.log(error.message)
                                                 }
 
                                                 dispatch(toggleIsLoading({toggle: false}));

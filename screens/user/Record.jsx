@@ -57,7 +57,7 @@ export default function Record() {
             <Text style={styles.recordTitle}>{data.service_type}</Text>
             <View style={[userStyles.row, {justifyContent: 'space-between'}]}>
               <View style={[userStyles.row, {columnGap: 10}]}>
-                <Text>$ {data.price}</Text>
+                <Text>Php {data.price}</Text>
                 <Text>{data.kg}kg</Text>  
               </View>
               <Text style={{}}>{data.date}</Text>

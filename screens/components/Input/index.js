@@ -30,7 +30,6 @@ export default function index({
                 autoComplete="off"
                 autoCorrect={false}
                 importantForAutofill="no"
-
                 activeOutlineColor="grey"
                 outlineColor="#e6e6e6" 
                 placeholder={placeholder ? placeholder : null}
@@ -46,7 +45,7 @@ export default function index({
                 editable={readonly ? false : true}
             />
             {error &&  touched &&
-                <HelperText type="error">
+                <HelperText type="error"> 
                     {error}
                 </HelperText>
             }

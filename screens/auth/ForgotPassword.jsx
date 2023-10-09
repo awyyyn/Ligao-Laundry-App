@@ -68,7 +68,11 @@ export default function ForgotPassword() {
                                     return setErr('Email is not registered');
                                 }
 
-                                const { error, data } = await supabase.auth.resetPasswordForEmail(values.email)
+                                const { error, data } = await supabase.auth.resetPasswordForEmail(values.email,
+                                    {
+                                        redirectTo: 'https://ligao-laundry.vercel.app/resetpassword'
+                                    }
+                                )
                                 console.log(error)
                                 if(error){
                                     dispatch(setLoadingFalse())

@@ -6,7 +6,7 @@ import services from './services';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux'; 
 import { supabase } from '../../supabaseConfig';
-import { setMessages, setNotificaitons, setUser } from '../../features/userSlice';
+import { setMessages, setNotificaitons, setUnreadMessages, setUser } from '../../features/userSlice';
 import { useEffect } from 'react';
 import { setLoadingFalse } from '../../features/uxSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -47,17 +47,21 @@ export default function HomeScreen() {
     return () => backHandler.remove();
 
   }, [])
-    
+  
+  const getUnreadMessages = async() => { 
+    const { data } = await supabase.from('message_channel').select().match({sender_id: session, is_read_by_customer: false });
+    dispatch(setUnreadMessages(data.length))  
+  } 
+
   const getMessages = async () => {
     const { data: session } = await supabase.auth.getSession()
     const { data } = await supabase.from('message_channel').select().eq('sender_id', session.session.user.id)
     /* SET TOKENS IN ASYNC STORAGE */
     await AsyncStorage.setItem('access_token', session.session.access_token)
     await AsyncStorage.setItem('refresh_token', session.session.refresh_token)
-    
     await AsyncStorage.setItem('@session_key', session.session.user.id); 
-   
-    dispatch(setMessages(data))
+    const orderBy = data.sort((itemA, itemB) => new Date(itemA.created_at) - new Date(itemB.created_at))
+    dispatch(setMessages(orderBy))
   }
 
   const getNotifications = async() => {
@@ -71,7 +75,9 @@ export default function HomeScreen() {
     dispatch(setLoadingFalse())
     const subscription = supabase.channel("any")
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message_channel' }, (payload) => {
-        getMessages();
+        // getMessages();
+        getUnreadMessages()
+
       }).subscribe()
 
     return () => subscription.unsubscribe()
