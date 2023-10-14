@@ -44,11 +44,7 @@ export default function Message() {
                 // console.log("paylod OLD", payload.old)
                 // console.log("paylod TABLE", payload.table) 
                 if(payload.new.sender_id == session) {
-                    updateUnread();
-                    setData((prevArr) => [
-                        ...prevArr,
-                        payload.new
-                    ]);
+                    updateUnread(); 
                     getUnreadMessages();
                 }
                 dispatch(setUnreadMessages(0));
@@ -186,9 +182,11 @@ export default function Message() {
                         onSubmitEditing={handleSubmit}
                         placeholder='Type a message...'
                         placeholderTextColor='#00667E50'
+                        disabled={loading || refreshing}
                         
                     />
                     <IconButton
+                        disabled={loading || refreshing}
                         onPress={handleSubmit}
                         style={styles.send}
                         icon="send"
