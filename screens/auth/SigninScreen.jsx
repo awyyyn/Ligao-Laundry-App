@@ -13,6 +13,7 @@ import { setLoadingFalse, setLoadingTrue } from '../../features/uxSlice';
 import { supabase } from '../../supabaseConfig';
 import { setSession, setUser } from '../../features/userSlice';
 import { useEffect } from 'react'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const validationSchema = yup.object({
     phone: 
@@ -37,7 +38,7 @@ export default function SigninScreen() {
     const dispatch = useDispatch();
 
     /* IF THERE IS A LOGIN USER REDIRECT TO USER SCREEN */  
-    // useEffect(() => { 
+    // useEffect(() => {  
     //     if(session) return navigation.replace('user') 
     // }, [])
 
@@ -106,10 +107,9 @@ export default function SigninScreen() {
         /* SET STATE SESSION */
         dispatch(setSession(data?.session?.user?.id))  
         /* SET TOKENS IN ASYNC STORAGE */
-        // await AsyncStorage.setItem('access_token', data.session.access_token)
-        // await AsyncStorage.setItem('refresh_token', data.session.refresh_token)
-         
-        // await AsyncStorage.setItem('@session_key', data.session.user.id); 
+        await AsyncStorage.setItem('access_token', data.session.access_token)
+        await AsyncStorage.setItem('refresh_token', data.session.refresh_token)
+        await AsyncStorage.setItem('@session_key', data.session.user.id); 
         /* SET USER STATE */
         const { data: user_data } = await supabase.from('customers').select('*').eq('user_id', data?.session?.user?.id);
         dispatch(setUser(user_data))

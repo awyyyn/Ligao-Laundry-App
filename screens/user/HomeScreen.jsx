@@ -23,8 +23,11 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(false)
- ;
-  
+ ; 
+  // console.log()
+
+  console.log(session, "session")
+
   useEffect(() => {
 
     const backAction = () => {
@@ -54,20 +57,26 @@ export default function HomeScreen() {
   } 
 
   const getMessages = async () => {
-    const { data: session } = await supabase.auth.getSession()
-    const { data } = await supabase.from('message_channel').select().eq('sender_id', session.session.user.id)
+    // const { data: session } = await supabase.auth.getSession()
+    const { data } = await supabase.from('message_channel').select().eq('sender_id', session)
     /* SET TOKENS IN ASYNC STORAGE */
-    await AsyncStorage.setItem('access_token', session.session.access_token)
-    await AsyncStorage.setItem('refresh_token', session.session.refresh_token)
-    await AsyncStorage.setItem('@session_key', session.session.user.id); 
+    // await AsyncStorage.setItem('access_token', session.session.access_token)
+    // await AsyncStorage.setItem('refresh_token', session.session.refresh_token)
+
+    // await AsyncStorage.setItem('@session_key', session.session.user.id); 
     const orderBy = data.sort((itemA, itemB) => new Date(itemA.created_at) - new Date(itemB.created_at))
     dispatch(setMessages(orderBy))
   }
+
+ 
 
   const getNotifications = async() => {
     const { data } = await supabase.from('notification').select().eq('recipent_id', session)
     dispatch(setNotificaitons(data))
   }
+
+
+  // console.log("SESSION", )
 
   useEffect(() => {
     getMessages();

@@ -23,14 +23,15 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         setSession(state, { payload }) {
+            console.log(payload, 'SESSIOn')
             state.session = payload
         }, 
         setUser(state, { payload }) {
-            // console.log('slice data: ', payload)
-            state.user.address = payload[0].address;
-            state.user.name = payload[0].name;
-            state.user.email = payload[0].email;
-            state.user.phone = payload[0].phone; 
+            console.log('slice data: ', payload)
+            state.user.address = payload[0]?.address ? payload[0]?.address : '';
+            state.user.name = payload[0]?.name ? payload[0]?.name : '';
+            state.user.email = payload[0]?.email ? payload[0]?.email : '';
+            state.user.phone = payload[0]?.phone ? payload[0]?.phone : ''; 
         },
         removeUser(state) {
             state.user.address = '' 

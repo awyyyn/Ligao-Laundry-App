@@ -6,23 +6,26 @@ import SigninScreen from '../screens/auth/SigninScreen';
 import SignupScreen from '../screens/auth/SignupScreen';
 import VerifytOTPScreen from '../screens/auth/VeriftyOTPScreen'; 
 import UserNavigation from './UserNavigation'; 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { supabase, supabaseAdmin } from '../supabaseConfig';
+import { setSession, setUser } from '../features/userSlice';
+import { Loading } from '../screens/components';
 
 const Stack = createNativeStackNavigator();
 
 const stacks = [ 
   {
-    name: "user",
-    component: UserNavigation,
-    animation: "slide_from_right"
-  },
-  {
     name: "signin",
     component: SigninScreen,
     animation: "slide_from_left"
+  },
+  {
+    name: "user",
+    component: UserNavigation,
+    animation: "slide_from_right"
   },
   {
     name: "signup",
@@ -47,40 +50,51 @@ const stacks = [
 ]
 
 
-export default function AuthNavigation() { 
-  const [sessionState, setSessionState] = useState()
-
+export default function AuthNavigation() {  
+  const [session, setSessionInit] = useState(null)
+  const dispatch = useDispatch()
   const navigation = useNavigation(); 
-  const getStoredSession = async() => {
-    try {
-      const value = await AsyncStorage.getItem('@session_key');
-      if(value){ 
-        setSessionState(value)
-      }else{
-        setSessionState(null)
-      }
-      console.log("CHANGE SCREEN")
-    } catch (error) {
-      console.log(error)
-    }
-  };
-
+ 
   useEffect(() => {
-    getStoredSession();
-  }, [navigation])
 
+    (async() => {
+      try {
+        const value = await AsyncStorage.getItem('@session_key');
+        
+        // const aKey = await AsyncStorage.getItem('access_token')
+        // const rKey = await AsyncStorage.getItem('refresh_token')
+  
 
-   
+        if(value){   
+          const { data: user_data } = await supabase.from('customers').select('*').eq('user_id', value)  
+          console.log(user_data)
+          dispatch(setUser(user_data))   
+          dispatch(setSession(value));
+  
+          setSessionInit('user')
+        }else{
+          await AsyncStorage.clear()
+          // setSession()
+          setSessionInit('signin') 
+        } 
+      } catch (error) {
+        console.log(error)
+      }
+    })()
+    
+  }, [])
 
-  const initialRouteName = sessionState ? 'user' : 'signin';
-
+  if(session == null) {
+    return <Loading />
+  }
+ 
+ 
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,  
       }}
-      initialRouteName={initialRouteName} 
-      
+      initialRouteName={session}  
     >
       {
           stacks.map((stack) => ( 
