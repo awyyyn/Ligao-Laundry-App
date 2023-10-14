@@ -105,7 +105,8 @@ export default function BookScreen() {
       disabled: availableTime?.find(({time}) => time == "04:00 PM")
     }
   ]; 
-  // console.log(type)
+  
+
   return (
     <Provider> 
       <SafeAreaView>
@@ -127,7 +128,7 @@ export default function BookScreen() {
                     <View >
                       <Text style={{marginBottom: 5}}>Type of Service</Text>
                       <Picker
-                        selectedValue={type}
+                        selectedValue={type} 
                         onValueChange={async(item) => {
                           // console.log(item, 'INDEX', index)
                           setErrors(prev => ({...prev, typeErr: ''}));
@@ -142,9 +143,18 @@ export default function BookScreen() {
                           getAvailableTime(date, item)   
                         }} 
                         style={styles.picker} 
-                        mode='dialog'
+                        mode='dropdown'
                       >  
-                        <Picker.Item value="Select Type" label='Select Type'  />
+                        <Picker.Item 
+                          value="Select Type" 
+                          label='Select Type'  
+                          style={{ 
+                            color:  "#00667E",
+                            fontWeight: '900',
+                            // font
+                          }}  
+                          
+                        />
                         {services.map(type => ( 
                           <Picker.Item key={type.value}  label={type.label} value={type.value} style={{zIndex: 99, color: '#000000'}} /> 
                         ))}
@@ -190,6 +200,8 @@ export default function BookScreen() {
                         onPressIn={() => setShowDatePicker(true)}
                         value={date.toLocaleDateString()}
                       />
+                      
+                      {errors.dateErr && <HelperText style={styles.error}>{errors.dateErr}</HelperText>}
                     </View>
                     <View> 
                       <Text style={{marginBottom: 5}}>Time</Text>
@@ -201,7 +213,7 @@ export default function BookScreen() {
                           setGetTime(value)
                         }}
                       > 
-                        <Picker.Item color='#00667E'   value='Select Time' label='Select Time' />
+                        <Picker.Item color='#00667E'  value='Select Time' label='Select Time' />
                         {time.map(timee => (
                           <Picker.Item key={timee.value} value={timee.value} label={timee.label} enabled={!timee.disabled} 
                             style={{  
@@ -240,11 +252,20 @@ export default function BookScreen() {
                     buttonColor='#00667E'
                     textColor='#ffffff'
                     onPress={async() => {  
+                      // setErrors('')
+                      // return
                       if(!type || type == 'Select Type'){
-                        setErrors(prevErrors => ({...prevErrors, typeErr: 'Select type of service!'}))
+                        setErrors(prevErrors => ({...prevErrors, typeErr: 'Please select type of service!'}))
+                      } 
+                      const dateVal = date.toLocaleString().split(',')[0] == new Date().toLocaleDateString()
+                      if(dateVal){
+                        console.log("SDASD")
+                        setErrors(prevErrors => ({...prevErrors, dateErr: 'Please select other date.'}))
+                      }else{
+                        setErrors(prevErrors => ({...prevErrors, dateErr: ''}))
                       }
                       if(!getTime || getTime == "Select Time"){
-                        setErrors(prevErrors => ({...prevErrors, timeErr: 'Select schedule time!'}))
+                        setErrors(prevErrors => ({...prevErrors, timeErr: 'Please select schedule time!'}))
                       }  
                       // console.log("TIME", getTime, "TYPE", type)
                       if(!type || !getTime || type == 'Select Type' || getTime == "Select Time") return errors
@@ -306,6 +327,7 @@ export default function BookScreen() {
       </SafeAreaView>
     </Provider>
   )
+
 }
 
 const styles = StyleSheet.create({
