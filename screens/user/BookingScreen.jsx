@@ -1,4 +1,4 @@
-import { View, StyleSheet, Dimensions, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native' 
+import { View, StyleSheet, Dimensions, ScrollView, Keyboard, TouchableWithoutFeedback, Image, Alert } from 'react-native' 
 import globalStyles from '../styles/auth-styles'   
 import { Button, Dialog, HelperText, Modal, Portal, Provider, Text, TextInput } from 'react-native-paper'
 import userStyles from '../styles/user-styles'
@@ -7,7 +7,7 @@ import { Formik } from 'formik';
 import { useNavigation } from '@react-navigation/native'
 import { supabase } from '../../supabaseConfig'
 import { useDispatch, useSelector } from 'react-redux'
-import { setSession } from '../../features/userSlice';  
+import { setSession, toggleIsBlocked } from '../../features/userSlice';  
 import { useEffect, useRef, useState } from 'react';
 import Ant from 'react-native-vector-icons/AntDesign';
 // import { SelectList } from 'react-native-dropdown-select-list';
@@ -17,11 +17,13 @@ import DateTimePicker from 'react-native-modal-datetime-picker'
 import services from './services';
 import { Notify } from '../components'
 import { toggleNotify } from '../../features/uxSlice'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import { RefreshControl, TouchableOpacity } from 'react-native-gesture-handler'
 
 
 export default function BookScreen() { 
-
+ 
+  const navigation = useNavigation();
+  const { notify } = useSelector(state => state.ux) 
   async function getAvailableTime(datee, s_type) {
     // console.log("DAATTEE", datee.toLocaleDateString()) 
     const { data, error } = await supabase.from('laundries_table').select('time').match({'date': datee.toLocaleDateString(), service_type: s_type})
@@ -29,18 +31,31 @@ export default function BookScreen() {
     setAvailableTime(data); 
   }  
 
+
+
+
+  useEffect(() => {
+    
+    (async() => {
+      const { data } = await supabase.from('customers').select().eq('user_id', session)
+
+    })();
+
+    console.log("HELLO WORLD")
+
+  }, [navigation])
+
   useEffect(() => { 
     const date = new Date(); 
-    getAvailableTime(date, type)
-
+    getAvailableTime(date, type) 
   }, [date, type]);
 
   const [availableTime, setAvailableTime] = useState( );
-  const { notify } = useSelector(state => state.ux)
 
-  const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { session, user } = useSelector(state => state.user);  
+  const { session, user, isblocked } = useSelector(state => state.user);  
+  const [isBlocked, setIsBlocked] = useState(isblocked);
+  const [refresh, setRefresh] = useState(false);
   const [type, settype] = useState("Select Type");
   // const [samp, setSamp] = useState(0);
   const [showDatePicker, setShowDatePicker] = useState(false);  
@@ -105,14 +120,76 @@ export default function BookScreen() {
       disabled: availableTime?.find(({time}) => time == "04:00 PM")
     }
   ]; 
+
+  const handleRefresh = async () => {
+    setRefresh(true) 
+    const { data, error } = await supabase.from('customers').select().eq('user_id', session).single();
+    if(error){
+      setRefresh(false)
+      console.log(error)
+      // console.log(data)
+      return alert(error.message)
+    }
+    dispatch(toggleIsBlocked(data.is_block))
+    setIsBlocked(data.is_block)
+    setRefresh(false)
+  }
   
+
+  if(isBlocked){
+    return ( 
+      <Provider> 
+        <SafeAreaView>
+          <Portal>   
+            <ScrollView 
+              refreshControl={
+                <RefreshControl 
+                  refreshing={refresh} 
+                  onRefresh={handleRefresh}
+                />
+              }
+              style={{zIndex: 2, backgroundColor: "#FFF"}}
+            >  
+              <Image
+                source={{uri: 'https://us.123rf.com/450wm/denyshutter/denyshutter2302/denyshutter230200899/198201485-ransomware-attack-and-cyber-protection-for-user-account-vector-illustration-cartoon-blocked-content.jpg?ver=6'}}
+                resizeMode='cover'
+                resizeMethod='scale'
+                style={{
+                  width: Dimensions.get('screen').width - 20,
+                  height: 220,
+                  // marginHorizontal: 'auto'
+                  alignSelf: "center",
+                  marginTop: '40%',
+                  
+                }}
+                
+              />
+              <Text
+                style={{
+                  fontSize: 18,
+                  textAlign: 'center',
+                  paddingHorizontal: 30,
+                  color: "#00667eaa",
+                  marginTop: 10
+                }}
+              >To address this issue, please contact the admin or staff.</Text>
+            </ScrollView>
+          </Portal>
+        </SafeAreaView>
+      </Provider>
+    )
+  }
 
   return (
     <Provider> 
       <SafeAreaView>
         <Portal>  
           <Notify />
-          <ScrollView style={{zIndex: 2}}>  
+          <ScrollView 
+            style={{zIndex: 2}} 
+            refreshing={refresh} 
+            onRefresh={handleRefresh}
+          >  
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
               <View style={styles.container}> 
                 <Text style={[userStyles.heading, userStyles.textshadow]}>Book a Service</Text> 
@@ -126,7 +203,7 @@ export default function BookScreen() {
                   >
                   <View style={{gap: 10, paddingHorizontal: 20}}> 
                     <View >
-                      <Text style={{marginBottom: 5}}>Type of Service</Text>
+                      <Text style={{marginBottom: 5}}>Select Service</Text>
                       <Picker
                         selectedValue={type} 
                         onValueChange={async(item) => {
@@ -162,7 +239,7 @@ export default function BookScreen() {
                       {errors.typeErr && <HelperText style={styles.error}>{errors.typeErr}</HelperText>}
                     </View> 
                     <View> 
-                      <Text>Price</Text>
+                      <Text>Price (kg)</Text>
                       <TextInput  
                         left={<TextInput.Icon icon='currency-php' />} 
                         editable={false}  
@@ -258,8 +335,7 @@ export default function BookScreen() {
                         setErrors(prevErrors => ({...prevErrors, typeErr: 'Please select type of service!'}))
                       } 
                       const dateVal = date.toLocaleString().split(',')[0] == new Date().toLocaleDateString()
-                      if(dateVal){
-                        console.log("SDASD")
+                      if(dateVal){ 
                         setErrors(prevErrors => ({...prevErrors, dateErr: 'Please select other date.'}))
                       }else{
                         setErrors(prevErrors => ({...prevErrors, dateErr: ''}))
@@ -268,7 +344,7 @@ export default function BookScreen() {
                         setErrors(prevErrors => ({...prevErrors, timeErr: 'Please select schedule time!'}))
                       }  
                       // console.log("TIME", getTime, "TYPE", type)
-                      if(!type || !getTime || type == 'Select Type' || getTime == "Select Time") return errors
+                      if(!type || !getTime || type == 'Select Type' || getTime == "Select Time" || dateVal) return errors
                       // console.log("TYPE", type)
                       setBooking(true);
                       const { data, error } = await supabase.from('laundries_table')

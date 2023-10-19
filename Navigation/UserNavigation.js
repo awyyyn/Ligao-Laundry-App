@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { removeUser, setLaundries, setMessages, setNotificaitons, setSession, setUnReadNotif, setUnreadMessages, } from '../features/userSlice';
 import { supabase } from '../supabaseConfig';
 import { setLoadingFalse, setLoadingTrue } from '../features/uxSlice' 
-import { DrawerActions, useNavigation } from '@react-navigation/native'; 
+import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native'; 
 import Feather from 'react-native-vector-icons/Feather'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { useState, useEffect } from 'react';
@@ -23,7 +23,7 @@ export default function UserNavigation() {
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const { session, unReadNotif, unreadMessage } = useSelector(state => state.user)
-    const { isLoading } = useSelector((state) => state.ux);  
+    const { isLoading } = useSelector((state) => state.ux);   
 
     const getUnreadNotification = useCallback(async() => {
         const { data } = await supabase.from('notification').select().match({recipent_id: session, is_read: false })

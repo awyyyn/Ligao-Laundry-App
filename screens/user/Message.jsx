@@ -10,10 +10,11 @@ import { FlatList } from 'react-native';
 import { supabase } from '../../supabaseConfig';
 import { useDispatch, useSelector } from 'react-redux';
 import { compose } from '@reduxjs/toolkit';
-import { useNavigation } from '@react-navigation/native'; 
+import { useNavigation, useRoute } from '@react-navigation/native'; 
 import { setUnreadMessages } from '../../features/userSlice';
 
 export default function Message() { 
+    const route = useRoute()
     const { session, user, messages } = useSelector(state => state.user)
     const [message, setMessage] = useState('');
     const [focus, setFocus] = useState(false);
@@ -46,11 +47,18 @@ export default function Message() {
                 if(payload.new.sender_id == session) {
                     updateUnread(); 
                     getUnreadMessages();
-                }
+ 
+                    setData(data => ([
+                        ...data,
+                        payload.new
+                    ]))
+                } 
                 dispatch(setUnreadMessages(0));
             }).subscribe()
 
-        return () => subscription.unsubscribe(); 
+        return () => { 
+            subscription.unsubscribe()
+        }
         
     }, [])
    
@@ -75,11 +83,6 @@ export default function Message() {
         if(error) {
             return console.log(error.message)
         }
-
-        setData(data => ([
-            ...data,
-            ...newMessage
-        ]))
     }
         
 

@@ -89,7 +89,8 @@ export default function Status() {
                         onRefresh={getLaundry}
                     />}
                 >
-                    <Portal> 
+                    {/* TODO: DELETE */}
+                    {/* <Portal> 
                         <StatusModal visible={modal} toDelete={toDelete} handleDismiss={() => setModal(false)} /> 
                         <Modal
                             visible={confirm}
@@ -148,7 +149,7 @@ export default function Status() {
                                 </Button>
                             </View>
                         </Modal>
-                    </Portal> 
+                    </Portal>  */}
                     {/* <FAB
                         icon='reload'
                         style={{position: 'absolute', bottom: 30, right: 30, zIndex: 999}}
@@ -167,14 +168,7 @@ export default function Status() {
                         laundriesData?.map((laundry) => {  
                             return (
                                 <TouchableOpacity
-                                    activeOpacity={laundry.status == "pending" || laundry.status == "washing" ? 1 : 0.3 }
-                                    onPress={() => {
-                                        if(laundry.status.includes("done")){ 
-                                            setToConfirmData(laundry.id)
-                                            console.log(laundry.id)
-                                            setConfirm(true)
-                                        }
-                                    }}
+                                    activeOpacity={laundry.status == "pending" || laundry.status == "washing" ? 1 : 1 } 
                                     key={laundry.id} 
                                 >
                                     <View 
@@ -198,9 +192,14 @@ export default function Status() {
                                                 }}>
                                                     {laundry.status == "done" ? "Ready to pick up" : `${laundry.status}...`}
                                                 </Text>
-                                                <Text>
-                                                    {laundry.status == "pending" ?  laundry.status : `₱ ${laundry.price}`}
-                                                </Text> 
+                                                <View style={[styles.row, { columnGap: 20 }]}>
+                                                    {laundry.status != "pending" &&
+                                                        <Text>Pieces: {laundry.pieces}</Text>
+                                                    }
+                                                    <Text>
+                                                        {laundry.status == "pending" ?  laundry.status : `₱ ${laundry.price}`}
+                                                    </Text> 
+                                                </View>
                                             </View>
                                         </View>
                                         <Text 

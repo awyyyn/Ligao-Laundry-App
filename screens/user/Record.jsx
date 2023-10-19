@@ -16,7 +16,7 @@ export default function Record() {
 
   const getStatusData = async (data) => {
     setLoading(true)
-    const res = await supabase.from('laundries_table').select().match({user_id: session, status: 'done'}) 
+    const res = await supabase.from('laundries_table').select().match({user_id: session, status: ''}) 
     setData(res.data);
     setLoading(false)
   }

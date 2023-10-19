@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     session: null,
+    isblocked: false,
     user: {
         name: '',
         address: '',
@@ -57,9 +58,12 @@ const userSlice = createSlice({
         },
         setUnreadMessages: (state, { payload }) => {
             state.unreadMessage = payload;
+        },
+        toggleIsBlocked: (state, { payload }) => {
+            state.isblocked = payload
         }
     }
 })
 
-export const { setSession, setUser, removeUser, setMessages, setNotificaitons, setUnReadNotif, setLaundries, setUnreadMessages } = userSlice.actions; 
+export const { setSession, toggleIsBlocked, setUser, removeUser, setMessages, setNotificaitons, setUnReadNotif, setLaundries, setUnreadMessages } = userSlice.actions; 
 export default userSlice.reducer

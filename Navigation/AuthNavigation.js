@@ -9,9 +9,9 @@ import UserNavigation from './UserNavigation';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { supabase, supabaseAdmin } from '../supabaseConfig';
-import { setSession, setUser } from '../features/userSlice';
+import { setSession, setUser, toggleIsBlocked } from '../features/userSlice';
 import { Loading } from '../screens/components';
 
 const Stack = createNativeStackNavigator();
@@ -53,9 +53,13 @@ const stacks = [
 export default function AuthNavigation() {  
   const [session, setSessionInit] = useState(null)
   const dispatch = useDispatch()
-  const navigation = useNavigation(); 
- 
+  const navigation = useNavigation();  
+
+
+
+  
   useEffect(() => {
+
 
     (async() => {
       try {
@@ -63,14 +67,12 @@ export default function AuthNavigation() {
         
         // const aKey = await AsyncStorage.getItem('access_token')
         // const rKey = await AsyncStorage.getItem('refresh_token')
-  
 
         if(value){   
-          const { data: user_data } = await supabase.from('customers').select('*').eq('user_id', value)  
-          console.log(user_data)
+          const { data: user_data } = await supabase.from('customers').select('*').eq('user_id', value)   
           dispatch(setUser(user_data))   
           dispatch(setSession(value));
-  
+          dispatch(toggleIsBlocked(user_data[0].is_block))
           setSessionInit('user')
         }else{
           await AsyncStorage.clear()

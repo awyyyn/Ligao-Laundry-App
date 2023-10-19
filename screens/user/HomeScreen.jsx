@@ -18,7 +18,7 @@ import { RefreshControl } from 'react-native-gesture-handler';
 import { useState } from 'react';
 
 export default function HomeScreen() {
-  const { session } = useSelector(state => state.user);  
+  const { session, isblocked } = useSelector(state => state.user);  
   const { isLoading } = useSelector(state => state.ux)
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -26,7 +26,7 @@ export default function HomeScreen() {
  ; 
   // console.log()
 
-  console.log(session, "session")
+  console.log(session, "session", isblocked)
 
   useEffect(() => {
 
@@ -53,7 +53,7 @@ export default function HomeScreen() {
   
   const getUnreadMessages = async() => { 
     const { data } = await supabase.from('message_channel').select().match({sender_id: session, is_read_by_customer: false });
-    dispatch(setUnreadMessages(data.length))  
+    dispatch(setUnreadMessages(data.length));
   } 
 
   const getMessages = async () => {
@@ -85,8 +85,7 @@ export default function HomeScreen() {
     const subscription = supabase.channel("any")
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'message_channel' }, (payload) => {
         // getMessages();
-        getUnreadMessages()
-
+        getUnreadMessages() 
       }).subscribe()
 
     return () => subscription.unsubscribe()
