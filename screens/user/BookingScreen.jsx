@@ -48,13 +48,16 @@ export default function BookScreen() {
 	const [type, settype] = useState("Select Type");
 
 	navigation.addListener("focus", async () => {
-		const s = await AsyncStorage.getItem("service");
-		// console.log(e, "asd");
+		// const s = await AsyncStorage.multiGet(["service", "price"]);
+		const type = await AsyncStorage.getItem("service");
+		const price = await AsyncStorage.getItem("price");
 		// console.log("FOCUSSED");
-		if (s) {
-			settype(s);
+		if (type && price) {
+			settype(type);
+			setPrice(price);
 		} else {
 			settype("Select Type");
+			setPrice(`00`);
 		}
 	});
 
@@ -308,7 +311,7 @@ export default function BookScreen() {
 													borderWidth: 0,
 													borderColor: "transparent",
 												}}
-												value={price}
+												value={`${price}.00`}
 											/>
 											{/* <HelperText></HelperText> */}
 										</View>
@@ -493,6 +496,7 @@ export default function BookScreen() {
 											setPrice("00.00");
 											setBooking(false);
 											setDate(new Date());
+											navigation.navigate("home");
 											getAvailableTime(new Date());
 											setTimeout(() => {
 												dispatch(

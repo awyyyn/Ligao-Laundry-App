@@ -15,7 +15,10 @@ export default function index({ isMainPage }) {
 	const handleBook = async () => {
 		// alert(title);
 		dispatch(closeModal());
-		await AsyncStorage.setItem("service", title);
+		await AsyncStorage.multiSet([
+			["service", title],
+			["price", price],
+		]);
 		navigation.navigate("user", {
 			screen: "book",
 			service: title,
